@@ -23,8 +23,8 @@
 		D4823E1A20D747B200B4167A /* ftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4823E1920D747B200B4167A /* ftViewController.swift */; };
 		D4A43E7D20FE4BC900C348D5 /* foodTruck.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A43E7C20FE4BC900C348D5 /* foodTruck.swift */; };
 		D4DF9FB020FE85190011C8A8 /* mealValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DF9FAF20FE85190011C8A8 /* mealValue.swift */; };
-		D4DF9FB520FF9C700011C8A8 /* foodtruck.json in Resources */ = {isa = PBXBuildFile; fileRef = D4DF9FB420FF9C6F0011C8A8 /* foodtruck.json */; };
 		D4DF9FB920FFBF310011C8A8 /* dayOfWeekValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DF9FB820FFBF310011C8A8 /* dayOfWeekValue.swift */; };
+		D4DF9FBD20FFD1950011C8A8 /* foodTruck.json in Resources */ = {isa = PBXBuildFile; fileRef = D4DF9FBC20FFD1950011C8A8 /* foodTruck.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,8 +48,8 @@
 		D4823E1920D747B200B4167A /* ftViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ftViewController.swift; sourceTree = "<group>"; };
 		D4A43E7C20FE4BC900C348D5 /* foodTruck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = foodTruck.swift; sourceTree = "<group>"; };
 		D4DF9FAF20FE85190011C8A8 /* mealValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mealValue.swift; sourceTree = "<group>"; };
-		D4DF9FB420FF9C6F0011C8A8 /* foodtruck.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = foodtruck.json; path = ../../../../../../../../Downloads/foodtruck.json; sourceTree = "<group>"; };
 		D4DF9FB820FFBF310011C8A8 /* dayOfWeekValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dayOfWeekValue.swift; sourceTree = "<group>"; };
+		D4DF9FBC20FFD1950011C8A8 /* foodTruck.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = foodTruck.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +92,6 @@
 				49F40FF220F3D72700D03BF9 /* ParseJSON.swift */,
 				49B2A20D20C5B1E5009E15A7 /* Main.storyboard */,
 				49B2A21020C5B1E6009E15A7 /* Assets.xcassets */,
-				D4DF9FB420FF9C6F0011C8A8 /* foodtruck.json */,
 				49B2A21220C5B1E6009E15A7 /* LaunchScreen.storyboard */,
 				493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */,
 				49B2A21520C5B1E6009E15A7 /* Info.plist */,
@@ -103,6 +102,7 @@
 				D4A43E7C20FE4BC900C348D5 /* foodTruck.swift */,
 				D4DF9FAF20FE85190011C8A8 /* mealValue.swift */,
 				D4DF9FB820FFBF310011C8A8 /* dayOfWeekValue.swift */,
+				D4DF9FBC20FFD1950011C8A8 /* foodTruck.json */,
 			);
 			path = "Find&Dine";
 			sourceTree = "<group>";
@@ -187,8 +187,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				49B2A21420C5B1E6009E15A7 /* LaunchScreen.storyboard in Resources */,
+				D4DF9FBD20FFD1950011C8A8 /* foodTruck.json in Resources */,
 				493DFD8F20C5C365005C91EE /* GoogleService-Info.plist in Resources */,
-				D4DF9FB520FF9C700011C8A8 /* foodtruck.json in Resources */,
 				49B2A21120C5B1E6009E15A7 /* Assets.xcassets in Resources */,
 				49B2A20F20C5B1E5009E15A7 /* Main.storyboard in Resources */,
 			);

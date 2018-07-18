@@ -96,7 +96,10 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     override func viewDidLoad() {
         super.viewDidLoad()
     
-        guard let path = Bundle.main.path(forResource: "foodtruck", ofType: "json") else {return}
+        // URL string that returns the JSON object for parsing
+        /*let urlString = "https://gist.githubusercontent.com/xbxme12345/81cfca65048a4a1a66baef09b3977864/raw/1ce568174db67b037126fce345fd6d1cd58ed361/json"*/
+        
+        guard let path = Bundle.main.path(forResource: "foodTruck", ofType: "json") else {return}
         let url = URL(fileURLWithPath: path)
         
         do {
