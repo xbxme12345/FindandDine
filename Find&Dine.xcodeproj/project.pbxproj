@@ -24,7 +24,7 @@
 		D4A43E7D20FE4BC900C348D5 /* foodTruck.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A43E7C20FE4BC900C348D5 /* foodTruck.swift */; };
 		D4DF9FB020FE85190011C8A8 /* mealValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DF9FAF20FE85190011C8A8 /* mealValue.swift */; };
 		D4DF9FB920FFBF310011C8A8 /* dayOfWeekValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DF9FB820FFBF310011C8A8 /* dayOfWeekValue.swift */; };
-		D4DF9FBD20FFD1950011C8A8 /* foodTruck.json in Resources */ = {isa = PBXBuildFile; fileRef = D4DF9FBC20FFD1950011C8A8 /* foodTruck.json */; };
+		D4DF9FBF20FFD2740011C8A8 /* foodtruck.txt in Resources */ = {isa = PBXBuildFile; fileRef = D4DF9FBE20FFD2740011C8A8 /* foodtruck.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,7 +49,7 @@
 		D4A43E7C20FE4BC900C348D5 /* foodTruck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = foodTruck.swift; sourceTree = "<group>"; };
 		D4DF9FAF20FE85190011C8A8 /* mealValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mealValue.swift; sourceTree = "<group>"; };
 		D4DF9FB820FFBF310011C8A8 /* dayOfWeekValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dayOfWeekValue.swift; sourceTree = "<group>"; };
-		D4DF9FBC20FFD1950011C8A8 /* foodTruck.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = foodTruck.json; sourceTree = "<group>"; };
+		D4DF9FBE20FFD2740011C8A8 /* foodtruck.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = foodtruck.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,7 +102,7 @@
 				D4A43E7C20FE4BC900C348D5 /* foodTruck.swift */,
 				D4DF9FAF20FE85190011C8A8 /* mealValue.swift */,
 				D4DF9FB820FFBF310011C8A8 /* dayOfWeekValue.swift */,
-				D4DF9FBC20FFD1950011C8A8 /* foodTruck.json */,
+				D4DF9FBE20FFD2740011C8A8 /* foodtruck.txt */,
 			);
 			path = "Find&Dine";
 			sourceTree = "<group>";
@@ -186,8 +186,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4DF9FBF20FFD2740011C8A8 /* foodtruck.txt in Resources */,
 				49B2A21420C5B1E6009E15A7 /* LaunchScreen.storyboard in Resources */,
-				D4DF9FBD20FFD1950011C8A8 /* foodTruck.json in Resources */,
 				493DFD8F20C5C365005C91EE /* GoogleService-Info.plist in Resources */,
 				49B2A21120C5B1E6009E15A7 /* Assets.xcassets in Resources */,
 				49B2A20F20C5B1E5009E15A7 /* Main.storyboard in Resources */,

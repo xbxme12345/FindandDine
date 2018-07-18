@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Find&amp;Dine/ftResultViewController.swift"
-            timestampString = "553636316.8783261"
+            timestampString = "553637512.99297"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "142"
-            endingLineNumber = "142"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
             landmarkName = "viewDidLoad()"
             landmarkType = "7">
          </BreakpointContent>

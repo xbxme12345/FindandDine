@@ -97,9 +97,45 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewDidLoad()
     
         // URL string that returns the JSON object for parsing
-        /*let urlString = "https://gist.githubusercontent.com/xbxme12345/81cfca65048a4a1a66baef09b3977864/raw/1ce568174db67b037126fce345fd6d1cd58ed361/json"*/
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/7ab6645d4b8049975b67e29883eb0bb5176575de/foodtruck.json") else {return}
+        let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
+            guard let dataResponse = data,
+                error == nil else {
+                    print(error?.localizedDescription ?? "Response Error")
+                    return
+            }
+            
+            do {
+                let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
+                guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
+
+                /*
+                guard let ftMeal = jsonArray[0]["Meal"] as? String else {print("not a meal string"); return}
+                guard let ftLocation = jsonArray[1]["Location"] as? String else {print("not a location string");return}
+                guard let ftDayOfWeek = jsonArray[2]["DayOfWeek"] as? String else {print("not a day of week string"); return}
+                guard let ftName = jsonArray[3]["FoodTruck"] as? String else {print("not a name string");return}
+                
+                print(ftMeal)
+                print(ftLocation)
+                print(ftDayOfWeek)
+                print(ftName)
+                print(" ")*/
+                
+                //Prints all locations and food truck name
+                for dic in jsonArray {
+                    guard let ftLocation = dic["Location"] as? String else {return}
+                    guard let ftName = dic["FoodTruck"] as? String else {return}
+                    print(ftName, " at ", ftLocation)
+                }
+            } catch let parsingError {
+                print("Error ", parsingError)
+            }
+        }
+        task.resume()
         
-        guard let path = Bundle.main.path(forResource: "foodTruck", ofType: "json") else {return}
+        
+        /*
+        guard let path = Bundle.main.path(forResource: "foodTruck", ofType: "txt") else {return}
         let url = URL(fileURLWithPath: path)
         
         do {
@@ -124,7 +160,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             }
         } catch {
             print(error)
-        }
+        }*/
         
         
         
