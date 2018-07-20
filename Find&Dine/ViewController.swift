@@ -209,21 +209,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // resultsViewController.sv = sv
     }
     
-    //    /**
-    //     Purpose: Send data to the specified variables in resultsViewController from above
-    //
-    //     Parameter: sender: the UIBarButtonItem which navigates to the next ViewController
-    //
-    //     TESTTEST
-    //     */
-    //    @IBAction func Find(_ sender: UIBarButtonItem) {
-    //        // make sure that location and distance are filled out before sending data
-    ////        if locationInput.text != "" && travelDistanceInput.text != "" && searchKeywordsInput.text != "" {
-    ////            performSegue(withIdentifier: "resultsViewController", sender: self)
-    ////        }
-    //        print("hello test test test")
-    //    }
-    //
     private func convertDist(dist: Double) -> Double {
         let temp = dist * 1609.334
         return temp

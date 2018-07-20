@@ -10,6 +10,7 @@
 import UIKit
 import GooglePlacePicker
 import GoogleMaps
+import CDYelpFusionKit
 import Foundation
 
 /**
@@ -61,6 +62,27 @@ struct image: Codable {
     let width: Int?
 }
 
+//************************************
+// yelp structures
+struct yelpJSON: Codable {
+    let name: String?
+    let image_url: String?
+    let rating: Float?
+    let coordinates: coordYelp?
+    let price: String?
+    let location: [addrYelp]?
+}
+struct coordYelp: Codable {
+    let lat: Float?
+    let lng: Float?
+}
+struct addrYelp: Codable {
+    let display_address:[daddrYelp]?
+}
+struct daddrYelp: Codable {
+    let l1: String?
+}
+//************************************
 /**
  Purpose: defines the RestInfo type. This is the info stored for each resturant
  
@@ -141,54 +163,102 @@ class resultsViewController: UIViewController {
         // convert distance from miles to meters
         travelDistMeters = getDistance(distance: Double(travelDistance)!)
         
-        // exec geocodeRequest to get resturants based on criteria from user
-        geocodeRequest(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, type: searchType, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
+        if service == "Google" {
+            
+            print("in google")
         
-        // wait for API call to return results
-        while (results == -1) {
-            print("waiting for results...")
-        }
-        
-        // if there are results then wait for coordinates to be set and then place first marker
-        // else if no results are returned, display an alert and then acknowledged, return to previous screen
-        if results == 0 { //  && RestList.count != 0 {
-            // wait for lat and lng to be set before proceeding
-            while (restPosCoord.longitude == 0.0) {
-                print("waiting for coordinates...")
+            // exec geocodeRequest to get resturants based on criteria from user
+            geocodeRequest(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, type: searchType, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
+            
+            // wait for API call to return results
+            while (results == -1) {
+                print("waiting for results...")
             }
             
-            // ViewController.removeSpinner(spinner: self.view)
-            // set marker of first restaurant
-            placeMarker(position: restPosCoord)
-            
-            if RestList.count == 1 {
-                searchAgain.isEnabled = false
+            // if there are results then wait for coordinates to be set and then place first marker
+            // else if no results are returned, display an alert and then acknowledged, return to previous screen
+            if results == 0 {
+                // wait for lat and lng to be set before proceeding
+                while (restPosCoord.longitude == 0.0) {
+                    print("waiting for coordinates...")
+                }
+                
+                // ViewController.removeSpinner(spinner: self.view)
+                // set marker of first restaurant
+                placeMarker(position: restPosCoord)
+                
+                if RestList.count == 1 {
+                    searchAgain.isEnabled = false
+                }
+            }
+            else {
+                // init alert
+                let alert = UIAlertController(title: "Output Error", message: "0 results returned. Please change search criteria and try again.", preferredStyle: .alert)
+                
+                // add close option. When tapped, it will dismiss the message and return the user to the previous screen
+                alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in self.navigationController?.popViewController(animated: true)}))
+                
+                // display alert to user
+                self.present(alert, animated: true)
             }
         }
-            // attempt to handle 0 results bc of rating
-            //        else if results == 2 && RestList.count == 0 {
-            //            // init alert
-            //            let alert = UIAlertController(title: "Input Error", message: "0 results match criteria, please change search criteria and try again.", preferredStyle: .alert)
-            //
-            //            // add close option. When tapped, it will dismiss the message and return the user to the previous screen
-            //            alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in self.navigationController?.popViewController(animated: true)}))
-            //
-            //            // display alert to user
-            //            self.present(alert, animated: true)
-            //
-            //        }
-        else {
-            // init alert
-            let alert = UIAlertController(title: "Output Error", message: "0 results returned. Please change search criteria and try again.", preferredStyle: .alert)
+        else { //Yelp service
+            print("in yelp")
             
-            // add close option. When tapped, it will dismiss the message and return the user to the previous screen
-            alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in self.navigationController?.popViewController(animated: true)}))
+            // init yelp service with API key
+//            let yelpAPIClient = CDYelpAPIClient(apiKey: "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx")
             
-            // display alert to user
-            self.present(alert, animated: true)
+            yelpBusinessSearch()
+            
         }
+    }
+    
+    func yelpBusinessSearch() {
+//        let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
+        
+        //        let urlString = "https://api.yelp.com/v3/businesses/search?term=food&location=boston"
+        let urlString = "https://leeg3.github.io/yelp1.json"
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        //        let config = URLSessionConfiguration.default
+        //        let authString = "Bearer \(apiKey)"
+        //        config.httpAdditionalHeaders = ["Authorization" : authString]
+        //        let session = URLSession(configuration: config)
+        
+        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+            //            if let httpResponse = response as? HTTPURLResponse {
+            //                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+            //                print(dataString!)
+            //            }
+            if error != nil {
+                print(error!.localizedDescription)
+            }
+            
+            guard let data = data else { return }
+            
+            do {
+                let yelpInfo = try JSONDecoder().decode(yelpJSON.self, from: data)
+                
+                print(yelpInfo.name!)
+                print(yelpInfo.rating!)
+                print(yelpInfo.coordinates!)
+                print(yelpInfo.price!)
+                print(yelpInfo.location!)
+            }
+            catch {
+                
+            }
+            
+        }
+        
+        task.resume()
+        
         
     }
+    
     
     func geocodeRequest(lat: Double, lng: Double, radius: Double, keyword: String, type: String, minPrice: Int, maxPrice: Int, minRating: Float) {
         

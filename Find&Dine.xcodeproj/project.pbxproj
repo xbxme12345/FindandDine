@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4919230420C85810004C5B68 /* resultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4919230320C85810004C5B68 /* resultsViewController.swift */; };
+		491FD72F210172A00048D390 /* yelpAPIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491FD72E210172A00048D390 /* yelpAPIRequest.swift */; };
 		493DFD8F20C5C365005C91EE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */; };
 		49B2A20A20C5B1E5009E15A7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B2A20920C5B1E5009E15A7 /* AppDelegate.swift */; };
 		49B2A20C20C5B1E5009E15A7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B2A20B20C5B1E5009E15A7 /* ViewController.swift */; };
@@ -26,6 +27,7 @@
 
 /* Begin PBXFileReference section */
 		4919230320C85810004C5B68 /* resultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = resultsViewController.swift; sourceTree = "<group>"; };
+		491FD72E210172A00048D390 /* yelpAPIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = yelpAPIRequest.swift; sourceTree = "<group>"; };
 		493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		49B2A20620C5B1E5009E15A7 /* Find&Dine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Find&Dine.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		49B2A20920C5B1E5009E15A7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 				49B2A21220C5B1E6009E15A7 /* LaunchScreen.storyboard */,
 				493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */,
 				49B2A21520C5B1E6009E15A7 /* Info.plist */,
+				491FD72E210172A00048D390 /* yelpAPIRequest.swift */,
 				D4823E1320D7476300B4167A /* CDYelpFusionKit.swift */,
 				D4823E1520D7478A00B4167A /* ftInfoViewController.swift */,
 				D4823E1720D747A100B4167A /* ftResultViewController.swift */,
@@ -281,6 +284,7 @@
 				D4823E1620D7478A00B4167A /* ftInfoViewController.swift in Sources */,
 				49B2A20A20C5B1E5009E15A7 /* AppDelegate.swift in Sources */,
 				4919230420C85810004C5B68 /* resultsViewController.swift in Sources */,
+				491FD72F210172A00048D390 /* yelpAPIRequest.swift in Sources */,
 				D4823E1820D747A100B4167A /* ftResultViewController.swift in Sources */,
 				D4A43E7D20FE4BC900C348D5 /* foodTruck.swift in Sources */,
 				D4DF9FB920FFBF310011C8A8 /* dayOfWeekValue.swift in Sources */,
