@@ -62,27 +62,6 @@ struct image: Codable {
     let width: Int?
 }
 
-//************************************
-// yelp structures
-struct yelpJSON: Codable {
-    let name: String?
-    let image_url: String?
-    let rating: Float?
-    let coordinates: coordYelp?
-    let price: String?
-    let location: [addrYelp]?
-}
-struct coordYelp: Codable {
-    let lat: Float?
-    let lng: Float?
-}
-struct addrYelp: Codable {
-    let display_address:[daddrYelp]?
-}
-struct daddrYelp: Codable {
-    let l1: String?
-}
-//************************************
 /**
  Purpose: defines the RestInfo type. This is the info stored for each resturant
  
@@ -92,6 +71,37 @@ struct RestInfo {
     let lng: Double
     let pid: String
 }
+
+//************************************
+// yelp structures
+struct yelpJSON: Codable {
+    let businesses: [rest]?
+}
+struct rest: Codable {
+    let name: String?
+    let image_url: String?
+    let rating: Float?
+    let coordinates: coordYelp?
+    let price: String?
+    let location: daddr?
+}
+struct coordYelp: Codable {
+    let latitude: Double?
+    let longitude: Double?
+}
+struct daddr: Codable {
+    let display_address: [String?]
+}
+
+struct yelpInfo {
+    let name: String
+    let addr: String
+    let rating: Float
+    let price: String
+    let lat: Double
+    let lng: Double
+}
+//************************************
 
 class resultsViewController: UIViewController {
     
@@ -130,6 +140,7 @@ class resultsViewController: UIViewController {
     
     //array used to store each restaurant's information
     private var RestList = [RestInfo]()
+    private var yelpRestList = [yelpInfo]()
     
     //store random number calculated from RestList.count
     private var randomNum = Int()
@@ -183,6 +194,9 @@ class resultsViewController: UIViewController {
                     print("waiting for coordinates...")
                 }
                 
+                print("user lat: ", restPosCoord.latitude)
+                print("user lng: ", restPosCoord.longitude)
+                
                 // ViewController.removeSpinner(spinner: self.view)
                 // set marker of first restaurant
                 placeMarker(position: restPosCoord)
@@ -206,33 +220,37 @@ class resultsViewController: UIViewController {
             print("in yelp")
             
             // init yelp service with API key
-//            let yelpAPIClient = CDYelpAPIClient(apiKey: "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx")
             
-            yelpBusinessSearch()
+            yelpJSONRequest() 
             
         }
     }
     
-    func yelpBusinessSearch() {
-//        let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
+    func yelpJSONRequest() {
+        let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
-        //        let urlString = "https://api.yelp.com/v3/businesses/search?term=food&location=boston"
-        let urlString = "https://leeg3.github.io/yelp1.json"
+        // test coordinates
+        // lat: 42.3446482
+        // lng: -71.1008254
+        // price note: 1,2 denotes that only price levels $ and $$ will show up. handle this
+        // coordinates are a bit less accurate than googles. maybe send address through to google/apple maps?
+        // may need to use categories on JSON result to determine type o restaurant
+        // category for restaurant needs to be lowercase
+        // doesn't handle foods as well as google
+        // handle rating like we do with google
+        let urlString = "https://api.yelp.com/v3/businesses/search?term=food&latitude=42.3446482&longitude=-71.1008254&price=1,2&radius=804&categories=burrito"
+        //        let urlString = "https://api.yelp.com/v3/businesses/search?term=food&location=boston@price=1,2"
         
         guard let url = URL(string: urlString) else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        //        let config = URLSessionConfiguration.default
-        //        let authString = "Bearer \(apiKey)"
-        //        config.httpAdditionalHeaders = ["Authorization" : authString]
-        //        let session = URLSession(configuration: config)
+        let config = URLSessionConfiguration.default
+        let authString = "Bearer \(apiKey)"
+        config.httpAdditionalHeaders = ["Authorization" : authString]
+        let session = URLSession(configuration: config)
         
-        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-            //            if let httpResponse = response as? HTTPURLResponse {
-            //                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-            //                print(dataString!)
-            //            }
+        let task = session.dataTask(with: url) { (data, response, error) in
             if error != nil {
                 print(error!.localizedDescription)
             }
@@ -240,23 +258,44 @@ class resultsViewController: UIViewController {
             guard let data = data else { return }
             
             do {
-                let yelpInfo = try JSONDecoder().decode(yelpJSON.self, from: data)
+                let yelpRestInfo = try JSONDecoder().decode(yelpJSON.self, from: data)
+//                print("ddaatta: ", yelpRestInfo)
                 
-                print(yelpInfo.name!)
-                print(yelpInfo.rating!)
-                print(yelpInfo.coordinates!)
-                print(yelpInfo.price!)
-                print(yelpInfo.location!)
-            }
-            catch {
+                for elem in yelpRestInfo.businesses! {
+                    
+                    var temp: String
+                    if elem.location!.display_address.count == 0 {
+                        temp = "No address listed for restaurant"
+                    }
+                    else if elem.location!.display_address.count == 1 {
+                        temp = elem.location!.display_address[0]!
+                    }
+                    else {
+                        temp = elem.location!.display_address[0]! + " " + elem.location!.display_address[1]!
+                    }
+                    
+                    self.yelpRestList.append(yelpInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!))
+                    
+                }
                 
             }
+            catch let jsonError { print(jsonError) }
+            
+            //            if self.RestList.count != 0 {
+            // calc random number and add to list
+            self.randomNum = Int(arc4random_uniform(UInt32(self.yelpRestList.count)))
+            self.randomNumList.append(self.randomNum)
+            
+            // update display to the first randomly generated resturant
+            // figure out this pid is google propritary
+//            self.setDisplay(pid: self.yelpRestList[self.randomNum].pid)
+            
+            // set coordinates of resturant
+            self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
             
         }
         
         task.resume()
-        
-        
     }
     
     
@@ -322,10 +361,6 @@ class resultsViewController: UIViewController {
             
             // set coordinates of resturant
             self.restPosCoord = CLLocationCoordinate2D(latitude: self.RestList[self.randomNum].lat, longitude: self.RestList[self.randomNum].lng)
-            //            }
-            //            else if self.RestList.count == 0 {
-            //                self.results = 2
-            //            }
             
         }
         
