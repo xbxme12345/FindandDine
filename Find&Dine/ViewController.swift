@@ -17,7 +17,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     // init GMSPlacesClient
     var placesClient: GMSPlacesClient!
     
-    // Connections to input fields for ViewController
+    // define connections to input fields for ViewController
     @IBOutlet weak var locationInput: UITextField!
     @IBOutlet weak var travelDistanceInput: UITextField!
     @IBOutlet weak var searchKeywordsInput: UITextField!
@@ -28,22 +28,20 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     @IBOutlet weak var ratingOutput: UILabel!
     @IBOutlet weak var searchTypeInput: UISegmentedControl!
     
-    // variables used for storing values from non text fields
-    // each set to a default value
-    var currentLocationUse = 0
-    var rating = 3.0
-    var service = "Google"
-    var type = "restaurant"
-    var minPrice = 1
-    var maxPrice = 2
-    var sv = UIView()
+    // variables used for storing values from non text fields. Each set to a default value and is reflected in the UI
+    private var currentLocationUse = 0
+    private var rating = 3.0
+    private var service = "Google"
+    private var type = "restaurant"
+    private var minPrice = 1
+    private var maxPrice = 2
     
     // separate lists for food and reataurants
-    let food = ["Burrito", "Pizza", "Burger", "Sushi"]
-    let restaurant = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
+    private let food = ["Burrito", "Pizza", "Burger", "Sushi"]
+    private let restaurant = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
     
     // set default list
-    var pickerData = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
+    private var pickerData = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
     
     /**
      Purpose: To define how many columns show up in the UIPickerView
@@ -83,7 +81,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Purpose: Retrieve value of the rating slider if it is moved.
      
      Parameter: UISlider: The position of the slider indicates its value
-     
      */
     @IBAction func ratingChange(_ sender: UISlider) {
         // set current value to the input from the UISlider
@@ -100,10 +97,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Purpose: To determine which rating service to use (Google (default) or Yelp)
      
      Parameter: UISwitch: the switch's position determines which service is used
-     
      */
     @IBAction func serviceChange(_ sender: UISwitch) {
-        // if the switch is in the on position, then use the Yelp service
+        // if the switch is in the on position, then use the Yelp service, else use Google
         if reviewServiceInput.isOn {
             service = "Yelp"
         }
@@ -112,13 +108,20 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         }
     }
     
+    /**
+     Purpose: To set the type of search for the API's.
+     
+     Parameter: sender: UISegmentedControl: input from this button determines the output
+     */
     @IBAction func SearchTypeChange(_ sender: UISegmentedControl) {
         switch searchTypeInput.selectedSegmentIndex {
+        // if set to restaurant, then clear text box and change placeholder text to show to user
         case 0:
             type = "restaurant"
             pickerData = restaurant
             searchKeywordsInput.text = ""
             searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
+        // if set to food, then clear text box and change placeholder text to show to user
         case 1:
             type = "food"
             pickerData = food
@@ -133,7 +136,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Purpose: to get the minPrice set by the user
      
      Parameter: sender: This is a UISegmentedControl which contains 4 options in this implementation
-     
      */
     @IBAction func minPriceChange(_ sender: UISegmentedControl) {
         // Go into switch to determine which option was selected then set minPrice to the corresponding value
@@ -172,7 +174,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Purpose: to get the maxPrice set by the user
      
      Parameter: sender: This is a UISegmentedControl which contains 4 options in this implementation
-     
      */
     @IBAction func maxPriceChange(_ sender: UISegmentedControl) {
         // Go into switch to determine which option was selected then set maxPrice to the corresponding value
@@ -192,11 +193,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     
     /**
      Purpose: Prepare to send data from this ViewController to resultsViewController
-     
      */
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // init resultsViewController as the segue destination
         let resultsViewController = segue.destination as! resultsViewController
+        
+        // assign values from this VC to resultsVC
         resultsViewController.locationFlag = currentLocationUse
         resultsViewController.location = locationInput.text!
         resultsViewController.travelDistance = travelDistanceInput.text!
@@ -206,18 +208,24 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         resultsViewController.maxPrice = maxPrice
         resultsViewController.minRating = Float(rating)
         resultsViewController.searchType = type
-        // resultsViewController.sv = sv
     }
     
-    private func convertDist(dist: Double) -> Double {
-        let temp = dist * 1609.334
-        return temp
-    }
+    /**
+     Purpose: convert distance from miles to meters
+     */
+//    private func convertDist(dist: Double) -> Double {
+//        let temp = dist * 1609.334
+//        return temp
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // set places sdk client
         placesClient = GMSPlacesClient.shared()
+        
+        // set location manager as delegate
+        locationManager.delegate = self
         
         // set inital place holder text for searchKeywordsInput
         searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
@@ -225,22 +233,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // set numeric keypad with decimal to travel dist input
         travelDistanceInput.keyboardType = UIKeyboardType.decimalPad
         
-        // set location manager as delegate
-        locationManager.delegate = self
-        
-        // request for use of location
+        // request for use of location if first time using app
         if CLLocationManager.authorizationStatus() == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
         
         // init UIPickerView to list many types of restaurants
-        let pickerView = UIPickerView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 220))
-        
-        pickerView.delegate = self
-        pickerView.dataSource = self
+//        let pickerView = UIPickerView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 220))
+//        pickerView.delegate = self
+//        pickerView.dataSource = self
         
         // disabled because idk how to implement thing to block users from putting in toenail
-        //        searchKeywordsInput.inputView = pickerView
+//        searchKeywordsInput.inputView = pickerView
         searchKeywordsInput.addDoneButtonOnKeyboard()
         
         // add Done buttons to keyboard tool bar. Used to dismiss keyboard when user is done with input
@@ -256,13 +260,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     
     /**
      Purpose: to check inputs so that empty values are not used in the API strings
-     
      */
     @objc func goToNextPage() {
+        // if both location and distance are specified, then send all info to resultsVC
         if locationInput.text != "" && travelDistanceInput.text != "" {
-            //            sv = ViewController.displaySpinner(onView: self.view)
             performSegue(withIdentifier: "toResults", sender: self)
         }
+        // else display alert to user notifying them to fill out both fields
         else if locationInput.text == "" || travelDistanceInput.text == "" {
             // init alertsheet
             let alert = UIAlertController(title: "Input Error", message: "Please specify a location and search radius.", preferredStyle: .alert)
@@ -281,7 +285,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Parameter: sender: UIButton, when the button is pressed, execute this function
      */
     @IBAction func getCurrentPlace(_ sender: UIButton) {
-        // get the current place
+        // get the current location
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
             // if there is an error then output the error
             if let error = error {
@@ -303,32 +307,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
 }
 
-extension ViewController {
-    class func displaySpinner(onView : UIView) -> UIView {
-        let spinnerView = UIView.init(frame: onView.bounds)
-        spinnerView.backgroundColor = UIColor.init(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
-        let ai = UIActivityIndicatorView.init(activityIndicatorStyle: .whiteLarge)
-        ai.startAnimating()
-        ai.center = spinnerView.center
-        
-        DispatchQueue.main.async {
-            spinnerView.addSubview(ai)
-            onView.addSubview(spinnerView)
-        }
-        
-        return spinnerView
-    }
-    
-    class func removeSpinner(spinner :UIView) {
-        DispatchQueue.main.async {
-            spinner.removeFromSuperview()
-        }
-    }
-}
-
 extension UITextField {
-    
-    @IBInspectable var doneAccessory: Bool{
+    @IBInspectable var doneAccessory: Bool {
         get {
             return self.doneAccessory
         }
