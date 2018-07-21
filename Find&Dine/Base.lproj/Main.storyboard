@@ -336,7 +336,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <state key="normal" title="Use Current Location"/>
                                 <connections>
-                                    <action selector="getCurrentPlace:" destination="z1r-0g-GC2" eventType="touchUpInside" id="wOj-iK-bgk"/>
+                                    <action selector="getCurrentPlace:" destination="z1r-0g-GC2" eventType="primaryActionTriggered" id="p0b-UA-2oq"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Type of Meal: (Breakfast/Lunch/Dinner)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MRd-id-eZV">
@@ -377,7 +377,8 @@
                     <navigationItem key="navigationItem" title="Find &amp; Dine" id="cJI-xm-wuh">
                         <barButtonItem key="rightBarButtonItem" title="Find" id="OYe-qI-qy1">
                             <connections>
-                                <segue destination="RTg-Il-NCs" kind="show" id="06z-7Z-4Gf"/>
+                                <action selector="findFoodTruck:" destination="z1r-0g-GC2" id="Xzh-4P-1Hy"/>
+                                <segue destination="RTg-Il-NCs" kind="show" identifier="foodTruckList" id="06z-7Z-4Gf"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -385,6 +386,7 @@
                         <outlet property="daySelection" destination="nqX-AY-qgr" id="Pe0-po-Qja"/>
                         <outlet property="locationInput" destination="aMG-e4-hqT" id="iGw-a5-gcs"/>
                         <outlet property="showMeal" destination="kdy-AC-aKO" id="qKO-s2-EfP"/>
+                        <outlet property="travelDistanceInput" destination="XiP-b6-M3X" id="pxx-ss-Clc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h00-2I-ySB" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -424,6 +426,7 @@
                     </view>
                     <connections>
                         <outlet property="tableViewFoodTruck" destination="sbh-u1-uWY" id="9nm-nP-waC"/>
+                        <segue destination="4QR-aL-gSX" kind="show" identifier="seeInfo" id="alT-jq-2nz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="a1Z-eK-YaB" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -437,9 +440,34 @@
                     <view key="view" contentMode="scaleToFill" id="uA2-DN-uXH">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CKK-IF-NYm">
+                                <rect key="frame" x="59" y="260" width="79" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Open Maps"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZYN-PZ-ckG">
+                                <rect key="frame" x="166" y="77" width="193" height="49"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="address" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J8z-qR-hPT">
+                                <rect key="frame" x="166" y="143" width="193" height="44"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="Wpg-Jk-aDv"/>
                     </view>
+                    <connections>
+                        <outlet property="foodTruckName" destination="ZYN-PZ-ckG" id="F6V-9f-reP"/>
+                        <outlet property="ftAddress" destination="J8z-qR-hPT" id="VN2-vZ-W2w"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dgB-Bi-zs3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

@@ -11,6 +11,9 @@ import UIKit
 
 class ftInfoViewController: UIViewController {
     
+    @IBOutlet weak var foodTruckName: UILabel!
+    @IBOutlet weak var ftAddress: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     }

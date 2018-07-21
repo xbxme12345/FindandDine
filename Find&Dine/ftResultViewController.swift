@@ -8,22 +8,58 @@
 
 import Foundation
 import UIKit
-import Realm
-import RealmSwift
+import GoogleMaps
 import SQLite3
 
+/*
 struct Food_Truck: Decodable{
     let meal: String?
     let location: String?
     let dayOfWeek: String?
     let foodTruck: String?
     
-    init(json: [String:Any]) {
+    init(_ dictionary: [String:Any]) {
         meal = json["meal"] as? String ?? ""
         location = json["location"] as? String ?? ""
         dayOfWeek = json["dayOfWeek"] as? String ?? ""
         foodTruck = json["foodTruck"] as? String ?? ""
     }
+}*/
+
+struct Food_Truck {
+    var meal: String
+    var location: String
+    var dayOfWeek: String
+    var foodTruck: String
+    
+    init(_ dictionary: [String: Any]) {
+        self.meal = dictionary["Meal"] as? String ?? ""
+        self.location = dictionary["Location"] as? String ?? ""
+        self.dayOfWeek = dictionary["DayOfWeek"] as? String ?? ""
+        self.foodTruck = dictionary["FoodTruck"] as? String ?? ""
+    }
+}
+
+struct AllFTAddress {
+    var ftAddress: String
+    
+    init(ftAddress: String) {
+        self.ftAddress = ftAddress
+    }
+}
+
+struct distanceLoc {
+    var ftLoc: String
+    var ftDistance: String
+    
+    init(ftLoc: String, ftDistance: String) {
+        self.ftLoc = ftLoc
+        self.ftDistance = ftDistance
+    }
+}
+
+struct distanceJSON: Codable {
+    var distance: String
 }
 
 class ftResultViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -34,9 +70,23 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     var locationFlag = Int()
     var location = String()
     var travelDistance = String()
+    var typeOfMealValue = [String]()
+    var dayOfWeekValue = [String]()
     
-    var db: OpaquePointer?
+    //Store the food truck to display in table view UI
     var foodTruckList = [foodTruck]()
+    
+    //Array to store all distinct addresses in JSON file
+    var allFTAddress = Set<String>()
+    
+    //List to store all addresses along with the distance to current location
+    var tmpDistAddress = [distanceLoc]()
+    
+    //Array to store food truck addresses which are within travel distance input of the user's current location
+    var closeByFTAddress = [String]()
+    
+    //Init location manager
+    private let locationManager = CLLocationManager()
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return foodTruckList.count
@@ -50,37 +100,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         return cell
     }
     
-    func readData() {
-        //Empty the list of food truck
-        foodTruckList.removeAll()
-        
-        //This is the select query
-        let queryString = "SELECT * FROM foodtruck;"
-        
-        //Statement pointer
-        var stmt: OpaquePointer?
-        
-        //Preparing the query
-        if sqlite3_prepare(db, queryString, -1, &stmt, nil) != SQLITE_OK {
-            let errmsg = String(cString: sqlite3_errmsg(db)!)
-            print("Error preparing insert: \(errmsg)")
-            return
-        }
-        
-        //Traversing through the records
-        while(sqlite3_step(stmt) == SQLITE_ROW) {
-            let id = sqlite3_column_int(stmt, 0)
-            let meal = String(cString: sqlite3_column_text(stmt, 1))
-            let location = String(cString: sqlite3_column_text(stmt, 2))
-            let dayOfWeek = String(cString: sqlite3_column_text(stmt, 3))
-            let foodTruckName = String(cString: sqlite3_column_text(stmt, 4))
-            
-            //Adding values to list
-            foodTruckList.append(foodTruck(id: Int(id), meal: String(describing: meal), location: String(describing: location), dayOfWeek: String(describing: dayOfWeek), foodTruckName: String(describing: foodTruckName)))
-        }
-        self.tableViewFoodTruck.reloadData()
-    }
-    
+    /* Example to append to FoodTruck list for table view
     func readJSONObject(object: [String: AnyObject]) {
         guard let ftData = object["ftData"] as? [[String: AnyObject]] else { return }
         
@@ -91,19 +111,41 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             _ = ftName + " for " + meal + " on " + dayOfWeek
         
         }
-    }
+    }*/
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //Set location manager delegate and request for location use if not authorized already
+        //locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        
+        //If 'Use Current Location' button was pressed, then get the current location of the device and store for use in the geocodeRequest function
+        
+        
+        //convert distance from miles to meters
+        
     
-        // URL string that returns the JSON object for parsing
+        //Prints out values passed through segue from ftViewController
+        print("Location: ", location)
+        print("Travel Distance: ", travelDistance)
+        print("Type of Meal: ", typeOfMealValue)
+        print("Day of the Week: ", dayOfWeekValue)
+    
+        //JSON file link for food truck info
+        //URL string that returns the JSON object for parsing
         guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/7ab6645d4b8049975b67e29883eb0bb5176575de/foodtruck.json") else {return}
+        
+        //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
             guard let dataResponse = data,
                 error == nil else {
                     print(error?.localizedDescription ?? "Response Error")
                     return
             }
+            
+            //Clears out array before appending
+            //self.allFTAddress.removeAll()
             
             do {
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
@@ -122,46 +164,92 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 print(" ")*/
                 
                 //Prints all locations and food truck name
+                /*
+                for dic in jsonArray {
+                    guard let ftMeal = dic["Meal"] as? String else {return}
+                    guard let ftLocation = dic["Location"] as? String else {return}
+                    guard let ftDayOfWeek = dic["DayOfWeek"] as? String else {return}
+                    guard let ftName = dic["FoodTruck"] as? String else {return}
+                }*/
+                
+                //Queries through JSON file and obtains all distinct addresses
+                var temp: [String] = []
                 for dic in jsonArray {
                     guard let ftLocation = dic["Location"] as? String else {return}
-                    guard let ftName = dic["FoodTruck"] as? String else {return}
-                    print(ftName, " at ", ftLocation)
+                    temp.append(ftLocation)
+                    
+                    //Append all distinct addresses to
+                    for address in temp {
+                        self.allFTAddress.insert(address)
+                    }
                 }
+                
+                /*
+                var model = [Food_Truck]()
+                for dic in jsonArray {
+                    model.append(Food_Truck(dic))
+                }
+                print(model[0].foodTruck)*/
+                
             } catch let parsingError {
                 print("Error ", parsingError)
             }
+            
+            //Create function and pass the values of allFTAddress to calculate
+            let allFTAddressArr = Array(self.allFTAddress)
+            //print(allFTAddressArr)
+            self.getDistLoc(inputArray: allFTAddressArr)
+            
+            /*
+            for address in self.allFTAddress {
+                print(address)
+                guard let url2 = URL(string: "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=\(self.location)&destinations=\(address)&key=AIzaSyAif9oTDr1DTrTP1Z7oxsmdp3SSnwSHr-g") else {return}
+                
+                print(url2)
+                let task = URLSession.shared.dataTask(with: url2) {(data, response, error) in
+                    
+                    guard let dataResponse = data, error == nil else {
+                        print(error?.localizedDescription ?? "Response Error")
+                        return
+                    }
+                    guard let data2 = data else {return}
+                    print(data2)
+                }
+            }*/
         }
         task.resume()
-        
-        
-        /*
-        guard let path = Bundle.main.path(forResource: "foodTruck", ofType: "txt") else {return}
-        let url = URL(fileURLWithPath: path)
-        
-        do {
-            let data = try Data(contentsOf: url)
-            let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-            print(json)
-            
-            guard let array = json as? [Any] else {return}
-            
-            for foodTruckName in array {
-                guard let foodTruck = foodTruckName as? [String: Any] else {return}
-                guard let ftMeal = foodTruck["Meal"] as? String else {print("not a meal string"); return}
-                guard let ftLocation = foodTruck["Location"] as? String else {print("not a location string");return}
-                guard let ftDayOfWeek = foodTruck["DayOfWeek"] as? String else {print("not a day of week string"); return}
-                guard let ftName = foodTruck["FoodTruck"] as? String else {print("not a name string");return}
-                
-                print(ftMeal)
-                print(ftLocation)
-                print(ftDayOfWeek)
-                print(ftName)
-                print(" ")
-            }
-        } catch {
-            print(error)
-        }*/
-        
     }
+    
+    /*
+     Purpose: Calculate the distance between two address
+    */
+    func getDistLoc(inputArray: Array<Any>) {
+        
+        let allAddressArr = inputArray
+        
+        for address in allAddressArr {
+            // URL string that returns the JSON object for parsing
+            let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=\(self.location)&destinations=\(address)&key=AIzaSyAif9oTDr1DTrTP1Z7oxsmdp3SSnwSHr-g"
+            
+            /*Url not returned value, is NIL (FIXXX!!!) */
+            // set urlString to be URL type
+            //guard let url = URL(string: urlString) else { return }
+            
+            print("Location Input: ", self.location)
+            print("Address: ", address)
+            print(urlString)
+            /*
+            let task = URLSession.shared.dataTask(with: url2) {(data, response, error) in
+                
+                guard let dataResponse = data, error == nil else {
+                    print(error?.localizedDescription ?? "Response Error")
+                    return
+                }
+                guard let data2 = data else {return}
+                print(data2)
+            }*/
+        }
+    }
+    
 }
 

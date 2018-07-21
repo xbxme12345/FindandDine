@@ -27,6 +27,12 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     
     private let theme = TCPickerViewDarkTheme()
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        placesClient = GMSPlacesClient.shared()
+    }
+    
     /*
      Purpose: To create a popup selection of different types of meal
               Store the selection into a array/list
@@ -95,35 +101,39 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         picker.show()
     }
     
+    /*
+     Purpose: Displays in terminal the row that the user selected
+    */
     func pickerView(_ pickerView: TCPickerViewInput, didSelectRowAtIndex index: Int) {
         print("User select row at index: \(index)")
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    /*
+     Purpose: 
+    */
+    @IBAction func findFoodTruck(_ sender: Any) {
+        performSegue(withIdentifier: "foodTruckList", sender: self)
     }
     
     /*
      Purpose: Prepare to send data from this ViewController to resultsViewController
      
      */
-    /*
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let ftResultViewController = segue.destination as! ftResultViewController
-        ftResultViewController.locationFlag = currentLocationUse
-        ftResultViewController.location = locationInput.text!
-        ftResultViewController.travelDistance = travelDistanceInput.text!
-        
-        //Add the type of meal
-        //Add the day of the week
-    }*/
+        let ftVC = segue.destination as! ftResultViewController
+        ftVC.location = self.locationInput.text!
+        ftVC.locationFlag = self.currentLocationUse
+        ftVC.travelDistance = self.travelDistanceInput.text!
+        ftVC.typeOfMealValue = self.typeOfMeal
+        ftVC.dayOfWeekValue = self.dayOfWeekVal
+    }
     
     /**
      Purpose: Retrieve current location's address
      
      Parameter: sender: UIButton, when the button is pressed, execute this function
     */
-    @IBAction func getCurrentPlace(_ sender: UIButton) {
+    @IBAction func getCurrentPlace(_ sender: Any) {
         // get the current place
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
             // if there is an error then output the error
