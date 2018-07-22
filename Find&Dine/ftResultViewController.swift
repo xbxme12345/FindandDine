@@ -85,6 +85,8 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     //Array to store food truck addresses which are within travel distance input of the user's current location
     var closeByFTAddress = [String]()
     
+    var distanceText = Set<String>()
+    
     //Init location manager
     private let locationManager = CLLocationManager()
     
@@ -199,23 +201,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             let allFTAddressArr = Array(self.allFTAddress)
             //print(allFTAddressArr)
             self.getDistLoc(inputArray: allFTAddressArr)
-            
-            /*
-            for address in self.allFTAddress {
-                print(address)
-                guard let url2 = URL(string: "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=\(self.location)&destinations=\(address)&key=AIzaSyAif9oTDr1DTrTP1Z7oxsmdp3SSnwSHr-g") else {return}
-                
-                print(url2)
-                let task = URLSession.shared.dataTask(with: url2) {(data, response, error) in
-                    
-                    guard let dataResponse = data, error == nil else {
-                        print(error?.localizedDescription ?? "Response Error")
-                        return
-                    }
-                    guard let data2 = data else {return}
-                    print(data2)
-                }
-            }*/
         }
         task.resume()
     }
@@ -233,21 +218,21 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             
             guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else { return }
             
-            let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
-                guard let dataResponse = data, error == nil else {
-                    print(error?.localizedDescription ?? "Response Error")
-                    return
+            do {
+                let base_url = try! Data(contentsOf: url)
+                let jsonResponse = try! JSONSerialization.jsonObject(with: base_url, options: []) as! NSDictionary
+                let json1 = jsonResponse["rows"] as! NSArray
+                let json2 = json1[0] as! NSDictionary
+                let json3 = json2["elements"] as! NSArray
+                let dic = json3[0] as! NSDictionary
+                
+                let distance = dic["distance"] as! NSDictionary
+                if let distanceTxt = distance["text"] as? String {
+                    self.distanceText.insert(distanceTxt)
                 }
                 
-                do {
-                    let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
-                    guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
-                
-                    print(jsonArray)
-                    
-                } catch let parsingError {
-                    print(parsingError)
-                }
+            } catch {
+                print(error.localizedDescription)
             }
             
         }
