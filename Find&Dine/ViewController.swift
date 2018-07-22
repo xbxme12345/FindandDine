@@ -28,14 +28,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     @IBOutlet weak var ratingOutput: UILabel!
     @IBOutlet weak var searchTypeInput: UISegmentedControl!
     
-    // variables used for storing values from non text fields. Each set to a default value and is reflected in the UI
+    // var to denote if the current location is being used
     private var currentLocationUse = 0
+    
+    // variables used for storing values from user. Each has a default value and is reflected in the UI
     private var rating = 3.0
     private var service = "Google"
     private var type = "restaurant"
     private var minPrice = 1
     private var maxPrice = 2
     
+    
+    //**** UIPickerView for restaurants and foods
     // separate lists for food and reataurants
     private let food = ["Burrito", "Pizza", "Burger", "Sushi"]
     private let restaurant = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
@@ -76,6 +80,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         searchKeywordsInput.text = pickerData[row]
     }
+    //**** UIPickerView for restaurants and foods ^^^
     
     /**
      Purpose: Retrieve value of the rating slider if it is moved.
@@ -83,8 +88,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Parameter: UISlider: The position of the slider indicates its value
      */
     @IBAction func ratingChange(_ sender: UISlider) {
-        // set current value to the input from the UISlider
-        // round value to nearest tenth. 
+        // set current value to the input from the UISlider and round value to nearest tenth.
         let currentValue = Float(round(ratingInput.value*10)/10)
         
         // update label in ViewController to display current value
@@ -95,12 +99,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     /**
-     Purpose: To determine which rating service to use (Google (default) or Yelp)
+     Purpose: To determine which rating service to use, Google (default) or Yelp
      
      Parameter: UISwitch: the switch's position determines which service is used
      */
     @IBAction func serviceChange(_ sender: UISwitch) {
-        // if the switch is in the on position, then use the Yelp service, else use Google
+        // if the switch is on, then use the Yelp service, otherwise use Google
         if reviewServiceInput.isOn {
             service = "Yelp"
         }
@@ -116,13 +120,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      */
     @IBAction func SearchTypeChange(_ sender: UISegmentedControl) {
         switch searchTypeInput.selectedSegmentIndex {
-        // if set to restaurant, then clear text box and change placeholder text to show to user
+        // if set to restaurant, then clear text box and change placeholder text to show examples to user
         case 0:
             type = "restaurant"
             pickerData = restaurant
             searchKeywordsInput.text = ""
             searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
-        // if set to food, then clear text box and change placeholder text to show to user
+        // if set to food, then clear text box and change placeholder text to show examples to user
         case 1:
             type = "food"
             pickerData = food
@@ -134,12 +138,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     /**
-     Purpose: to get the minPrice set by the user
+     Purpose: To get the minPrice set by the user
      
      Parameter: sender: This is a UISegmentedControl which contains 4 options in this implementation
      */
     @IBAction func minPriceChange(_ sender: UISegmentedControl) {
-        // Go into switch to determine which option was selected then set minPrice to the corresponding value
+        // Switch used to determine which option was selected then set minPrice to the corresponding value
         // disable options in maxPriceInput if the minPriceInput > maxPriceInput
         switch minPriceInput.selectedSegmentIndex {
         case 0:
@@ -172,12 +176,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     /**
-     Purpose: to get the maxPrice set by the user
+     Purpose: To get the maxPrice set by the user
      
      Parameter: sender: This is a UISegmentedControl which contains 4 options in this implementation
      */
     @IBAction func maxPriceChange(_ sender: UISegmentedControl) {
-        // Go into switch to determine which option was selected then set maxPrice to the corresponding value
+        // Switch used to determine which option was selected then set maxPrice to the corresponding value
         switch maxPriceInput.selectedSegmentIndex {
         case 0:
             maxPrice = 1
@@ -211,22 +215,21 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         resultsViewController.searchType = type
     }
     
-    /**
-     Purpose: convert distance from miles to meters
-     */
-//    private func convertDist(dist: Double) -> Double {
-//        let temp = dist * 1609.334
-//        return temp
-//    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // set placeholder text for locationInput to notify user that the current address is going to be used
         locationInput.placeholder = "loading current address..."
         
         // set places sdk client
         placesClient = GMSPlacesClient.shared()
         
+        // request for use of location if first time using app
+        if CLLocationManager.authorizationStatus() == .notDetermined {
+            locationManager.requestWhenInUseAuthorization()
+        }
+        
+        // update locationInput to display current location
         setCurrentLocation()
         
         // set location manager as delegate
@@ -235,21 +238,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // set inital place holder text for searchKeywordsInput
         searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
         
-        // set numeric keypad with decimal to travel dist input
+        // set numeric keypad with decimal for travel distance input
         travelDistanceInput.keyboardType = UIKeyboardType.decimalPad
         
-        // request for use of location if first time using app
-        if CLLocationManager.authorizationStatus() == .notDetermined {
-            locationManager.requestWhenInUseAuthorization()
-        }
-        
-        // init UIPickerView to list many types of restaurants
+        //** init UIPickerView to list many types of restaurants
 //        let pickerView = UIPickerView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 220))
 //        pickerView.delegate = self
 //        pickerView.dataSource = self
+//        searchKeywordsInput.inputView = pickerView
+        //**
         
         // disabled because idk how to implement thing to block users from putting in toenail
-//        searchKeywordsInput.inputView = pickerView
         searchKeywordsInput.addDoneButtonOnKeyboard()
         
         // add Done buttons to keyboard tool bar. Used to dismiss keyboard when user is done with input
@@ -273,7 +272,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         }
         // else display alert to user notifying them to fill out both fields
         else if locationInput.text == "" || travelDistanceInput.text == "" {
-            // init alertsheet
+            // init alert
             let alert = UIAlertController(title: "Input Error", message: "Please specify a location and search radius.", preferredStyle: .alert)
             
             // add close option. Selecting this option will call openGoogleMaps
@@ -285,7 +284,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     /**
-     Purpose: Retrieve current location's address
+     Purpose: Retrieve address of current location
      
      Parameter: sender: UIButton, when the button is pressed, execute this function
      */
@@ -311,6 +310,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         currentLocationUse = 1
     }
     
+    /**
+     Purpose: Retrieve address of current location and set locationInput to the address
+     */
+    
     func setCurrentLocation() {
         // get the current location
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
@@ -334,6 +337,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
 }
 
+/**
+ Purpose: To add the Done button to the keyboards so that the keyboards can be dismissed when the user is done entering their input
+ */
 extension UITextField {
     @IBInspectable var doneAccessory: Bool {
         get {

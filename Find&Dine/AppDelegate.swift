@@ -28,7 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // CD Yelp Fusion Kit API
         CDYelpFusionKitManager.shared.configure()
         
-        
         return true
     }
 

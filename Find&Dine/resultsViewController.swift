@@ -9,7 +9,6 @@
 import UIKit
 import GooglePlacePicker
 import GoogleMaps
-import CDYelpFusionKit
 import Foundation
 
 /**
@@ -90,7 +89,7 @@ class resultsViewController: UIViewController {
     // init map display
     @IBOutlet weak var mapView: GMSMapView!
     
-    // connect UI with variables
+    // assign variable names to each label, button and imageView
     @IBOutlet weak var restaurantName: UILabel!
     @IBOutlet weak var placeAddr: UILabel!
     @IBOutlet weak var placeRating: UILabel!
@@ -139,7 +138,7 @@ class resultsViewController: UIViewController {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         
-        // if the Use Current Location button was pressed, then get the current location of the device and store those for use in the geocodeRequest function
+        // if Use Current Location button was pressed, then get the current location of the device and store those for use in the geocodeRequest function
         if locationFlag == 1 {
             originlatitude = (locationManager.location?.coordinate.latitude)!
             originlongitude = (locationManager.location?.coordinate.longitude)!
@@ -172,14 +171,7 @@ class resultsViewController: UIViewController {
                 }
             }
             else {
-                // init alert
-                let alert = UIAlertController(title: "Output Error", message: "0 results returned. Please change search criteria and try again.", preferredStyle: .alert)
-                
-                // add close option. When tapped, it will dismiss the message and return the user to the previous screen
-                alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in self.navigationController?.popViewController(animated: true)}))
-                
-                // display alert to user
-                self.present(alert, animated: true)
+                noResultsAlert()
             }
         }
         else { //Yelp service
@@ -206,16 +198,23 @@ class resultsViewController: UIViewController {
                 }
             }
             else {
-                // init alert
-                let alert = UIAlertController(title: "Output Error", message: "0 results returned. Please change search criteria and try again.", preferredStyle: .alert)
-                
-                // add close option. When tapped, it will dismiss the message and return the user to the previous screen
-                alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in self.navigationController?.popViewController(animated: true)}))
-                
-                // display alert to user
-                self.present(alert, animated: true)
+                noResultsAlert()
             }
         }
+    }
+    
+    /**
+     Purpose: To display an alert notifying the user that there are 0 results
+     */
+    func noResultsAlert() {
+        // init alert
+        let alert = UIAlertController(title: "Output Error", message: "0 results returned. Please change search criteria and try again.", preferredStyle: .alert)
+        
+        // add close option. When tapped, it will dismiss the message and return the user to the previous screen
+        alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: { action in self.navigationController?.popViewController(animated: true)}))
+        
+        // display alert to user
+        self.present(alert, animated: true)
     }
     
     /**
@@ -234,12 +233,21 @@ class resultsViewController: UIViewController {
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
+        // replace spaces in keyword with + for API call and set keyword to all lowercase
+        var word = keyword
+        if keyword.contains(" ") {
+            word = keyword.replacingOccurrences(of: " ", with: "+")
+            word = word.lowercased()
+        }
+        
         // price handler
         var num = minPrice
         var priceString = String(minPrice)
+        // if the maxPrice is lower than minPrice, then set minPrice as the price level to be used
         if minPrice >= maxPrice {
             priceString = String(minPrice)
         }
+        // otherwise add all prices between minPrice and maxPrice to be used in price string
         else {
             num+=1
             while (num <= maxPrice) {
@@ -248,11 +256,8 @@ class resultsViewController: UIViewController {
             }
         }
         
-        // keyword to lowercase, yelp API doesn't work with uppercase letters in their query
-        let keyword_lcase = keyword.lowercased()
-        
         // build URL for API request
-        let urlString = "https://api.yelp.com/v3/businesses/search?term=\(searchType)&latitude=\(lat)&longitude=\(lng)&price=\(priceString)&radius=\(Int(radius))&categories=\(keyword_lcase)"
+        let urlString = "https://api.yelp.com/v3/businesses/search?term=\(searchType)&latitude=\(lat)&longitude=\(lng)&price=\(priceString)&radius=\(Int(radius))&categories=\(word)"
         
         guard let url = URL(string: urlString) else { return }
         
@@ -271,10 +276,10 @@ class resultsViewController: UIViewController {
             }
             
             // output JSON response
-            if let httpResponse = response as? HTTPURLResponse {
-                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-                print(dataString!)
-            }
+//            if let httpResponse = response as? HTTPURLResponse {
+//                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+//                print(dataString!)
+//            }
             
             guard let data = data else { return }
             
@@ -300,7 +305,7 @@ class resultsViewController: UIViewController {
                             temp = elem.location!.display_address[0]! + " " + elem.location!.display_address[1]!
                         }
                         
-                        // check rating
+                        // if rating of restaurant is above minRating, then add to yelpRestList
                         if elem.rating! >= minRating {
                             self.results = 0
                             self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!))
@@ -364,11 +369,16 @@ class resultsViewController: UIViewController {
         var word = keyword
         if keyword.contains(" ") {
             word = keyword.replacingOccurrences(of: " ", with: "+")
-            print("word: ", word)
+        }
+        
+        // if minPrice is higher than maxPrice, set maxPrice to minPrice
+        var max = maxPrice
+        if minPrice >= maxPrice {
+            max = minPrice
         }
         
         // URL string that returns the JSON object for parsing
-        let urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=\(lat),\(lng)&radius=\(radius)&type=\(searchType)&minprice=\(minPrice)&maxprice=\(maxPrice)&keyword=\(word)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
+        let urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=\(lat),\(lng)&radius=\(radius)&type=\(searchType)&minprice=\(minPrice)&maxprice=\(max)&keyword=\(word)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
         
         // set urlString to be URL type?
         guard let url = URL(string: urlString) else { return }
@@ -470,7 +480,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: Generates a new random number
+     Purpose: Selects a new random restaurant to display to the user from the restList
      
      Parameter: UIButton: waits for the UIButton to be pressed, then executes this function
      */
@@ -478,6 +488,7 @@ class resultsViewController: UIViewController {
         // clear map of existing markers
         mapView.clear()
         
+        // stores size of list being used
         var size = Int()
         
         // set size based on which service is used
@@ -490,7 +501,7 @@ class resultsViewController: UIViewController {
         
         // if statement to ensure that we generate the correct amount of random numbers
         if (randomNumList.count < size) {
-            // generate a random number
+            // store a value
             var temp = Int()
             
             // if the random number was already used (in randomNumList) then calculate again
@@ -498,9 +509,9 @@ class resultsViewController: UIViewController {
                 temp = Int(arc4random_uniform(UInt32(size)))
             } while (randomNumList.contains(temp))
             
-            // set the newly calculated random number to randomNum to be used within this class and add it to the randomNumList
+            // update randomNum with new randomNum and add it to the randomNumList
             randomNum = temp
-            randomNumList.append(randomNum)
+            randomNumList.append(temp)
             
             // update the display
             if service == "Google" {
@@ -525,7 +536,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: convert distance from miles to meters
+     Purpose: Convert distance from miles to meters
      
      Return: return converted distance
      */
@@ -538,7 +549,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: convert Google places value into a string for output
+     Purpose: Convert Google places value into a string for output
      
      Parameter: priceLevel: stored price level for a specified place
      
@@ -557,7 +568,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: To load the photo accessed by the Google Places SDK
+     Purpose: Load the photo accessed by the Google Places SDK
      
      Parameter: placeID: This is used by Google to uniquely id a place
      */
@@ -575,7 +586,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: to help loadFirstPhotoForPlace function
+     Purpose: To help loadFirstPhotoForPlace function
      
      Parameter: photoMetaData: metadata passed to it from loadFirstPhotoForPlace
      */
@@ -592,7 +603,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: to open the dedicated maps app on phone for turn by turn directions to location
+     Purpose: To open a the dedicated maps app on phone for turn by turn directions to location. Currently can open Apple or Google Maps
      
      Parameter: sender: UIButton: when the Get Directions button is pressed, exec this function
      
@@ -614,7 +625,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: to determine if a stret number is present in the formatted address from Google
+     Purpose: To determine if a street number is present in the address string
      
      Parameter: input: This is the address of a resturant which is checked for a street number
      
