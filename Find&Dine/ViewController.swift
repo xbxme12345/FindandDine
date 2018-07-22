@@ -84,10 +84,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      */
     @IBAction func ratingChange(_ sender: UISlider) {
         // set current value to the input from the UISlider
-        let currentValue = ratingInput.value
+        // round value to nearest tenth. 
+        let currentValue = Float(round(ratingInput.value*10)/10)
         
         // update label in ViewController to display current value
-        ratingOutput.text = "\(Int(currentValue))"
+        ratingOutput.text = "\(currentValue)"
         
         // set the current value as the rating
         rating = Double(currentValue)
@@ -221,8 +222,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        locationInput.placeholder = "loading current address..."
+        
         // set places sdk client
         placesClient = GMSPlacesClient.shared()
+        
+        setCurrentLocation()
         
         // set location manager as delegate
         locationManager.delegate = self
@@ -285,6 +290,28 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Parameter: sender: UIButton, when the button is pressed, execute this function
      */
     @IBAction func getCurrentPlace(_ sender: UIButton) {
+        // get the current location
+        placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
+            // if there is an error then output the error
+            if let error = error {
+                print("Pick Place error: \(error.localizedDescription)")
+                return
+            }
+            
+            // if there is info about this place then retrieve it and then set the location field to the formatted address of the current location
+            if let placeLikelihoodList = placeLikelihoodList {
+                let place = placeLikelihoodList.likelihoods.first?.place
+                if let place = place {
+                    self.locationInput.text = place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n")
+                }
+            }
+        })
+        
+        // flag for use in resultsViewController
+        currentLocationUse = 1
+    }
+    
+    func setCurrentLocation() {
         // get the current location
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
             // if there is an error then output the error

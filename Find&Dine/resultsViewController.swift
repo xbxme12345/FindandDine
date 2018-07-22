@@ -231,15 +231,8 @@ class resultsViewController: UIViewController {
      minRating: Float - minimum restaurant rating set by user
      */
     func yelpGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, type: String, minPrice: Int, maxPrice: Int, minRating: Float) {
-        
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
-        
-        // rating handler: if the rating is 5, set to 4.5 and continue
-        var rating = minRating
-        if rating == 5.0 {
-            rating = 4.5
-        }
         
         // price handler
         var num = minPrice
@@ -278,10 +271,10 @@ class resultsViewController: UIViewController {
             }
             
             // output JSON response
-//            if let httpResponse = response as? HTTPURLResponse {
-//                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-//                print(dataString!)
-//            }
+            if let httpResponse = response as? HTTPURLResponse {
+                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+                print(dataString!)
+            }
             
             guard let data = data else { return }
             
@@ -291,8 +284,6 @@ class resultsViewController: UIViewController {
                 
                 // if results are returned by the API, then proceed with parse
                 if yelpRestResult.total != 0 {
-                    self.results = 0
-
                     // iterate through yelpRestInfo
                     for elem in yelpRestResult.businesses! {
                         var temp: String
@@ -311,26 +302,33 @@ class resultsViewController: UIViewController {
                         
                         // check rating
                         if elem.rating! >= minRating {
+                            self.results = 0
                             self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!))
                         }
                     }
                 }
                 else {
                     self.results = 1
+                    print("no results bc no results")
                     return
                 }
             }
             catch let jsonError { print(jsonError) }
             
-            // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
-            self.randomNum = Int(arc4random_uniform(UInt32(self.yelpRestList.count)))
-            self.randomNumList.append(self.randomNum)
-            
-            // update display to the first randomly generated resturant
-            self.setDisplay(name: self.yelpRestList[self.randomNum].name, addr: self.yelpRestList[self.randomNum].addr, rating: self.yelpRestList[self.randomNum].rating, price: self.yelpRestList[self.randomNum].price)
-            
-            // set coordinates of resturant
-            self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
+            if self.yelpRestList.count != 0 {
+                // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
+                self.randomNum = Int(arc4random_uniform(UInt32(self.yelpRestList.count)))
+                self.randomNumList.append(self.randomNum)
+                
+                // update display to the first randomly generated resturant
+                self.setDisplay(name: self.yelpRestList[self.randomNum].name, addr: self.yelpRestList[self.randomNum].addr, rating: self.yelpRestList[self.randomNum].rating, price: self.yelpRestList[self.randomNum].price)
+                
+                // set coordinates of resturant
+                self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
+            }
+            else {
+                self.results = 2
+            }
         }
         // start task defined above
         task.resume()
@@ -369,12 +367,6 @@ class resultsViewController: UIViewController {
             print("word: ", word)
         }
         
-        // if the rating is 5, set to 4.5 and continue
-        var rating = minRating
-        if rating == 5.0 {
-            rating = 4.5
-        }
-        
         // URL string that returns the JSON object for parsing
         let urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=\(lat),\(lng)&radius=\(radius)&type=\(searchType)&minprice=\(minPrice)&maxprice=\(maxPrice)&keyword=\(word)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
         
@@ -398,29 +390,35 @@ class resultsViewController: UIViewController {
                 
                 // check JSON result to make sure that there were no errors
                 if restaurantInfo.status == "OK" {
-                    self.results = 0
                     for elem in (restaurantInfo.results)! {
                         // append each restaurant info to the array if it is greater than the minRating
-                        if elem.rating >= rating {
+                        if elem.rating >= minRating {
+                            self.results = 0
                             self.googleRestList.append(googleRestInfo(lat: elem.geometry?.location!["lat"]! as! Double, lng:elem.geometry?.location!["lng"]! as! Double, pid: elem.place_id!))
                         }
                     }
                 }
                 else {
                     self.results = 1
-                    print("no results")
+                    print("no results bc no results")
                     return
                 }
             } catch let jsonError { print(jsonError) }
-            // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
-            self.randomNum = Int(arc4random_uniform(UInt32(self.googleRestList.count)))
-            self.randomNumList.append(self.randomNum)
-            
-            // update display to the first randomly generated resturant
-            self.setDisplay(pid: self.googleRestList[self.randomNum].pid)
-            
-            // set coordinates of resturant
-            self.restPosCoord = CLLocationCoordinate2D(latitude: self.googleRestList[self.randomNum].lat, longitude: self.googleRestList[self.randomNum].lng)
+            // if empty due to rating don't do this
+            if self.googleRestList.count != 0 {
+                // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
+                self.randomNum = Int(arc4random_uniform(UInt32(self.googleRestList.count)))
+                self.randomNumList.append(self.randomNum)
+                
+                // update display to the first randomly generated resturant
+                self.setDisplay(pid: self.googleRestList[self.randomNum].pid)
+                
+                // set coordinates of resturant
+                self.restPosCoord = CLLocationCoordinate2D(latitude: self.googleRestList[self.randomNum].lat, longitude: self.googleRestList[self.randomNum].lng)
+            }
+            else {
+                self.results = 2
+            }
         }
         // start task specified above
         task.resume()
@@ -647,21 +645,21 @@ class resultsViewController: UIViewController {
      */
     private func openGoogleMaps() {
         // init beginning of string used for URL call
-        var destAddr = "comgooglemaps://?daddr="
+        var urlString = "comgooglemaps://?daddr="
         
         //determine if a street number is in the resturant address
         let streetNumIsPresent = containsStreetNum(input: placeAddr.text!)
         
         // If there is a street number, then add the address to the URL call string and replace the spaces with +
         if streetNumIsPresent {
-            destAddr.append(placeAddr.text!)
-            destAddr = destAddr.replacingOccurrences(of: " ", with: "+")
+            urlString.append(placeAddr.text!)
+            urlString = urlString.replacingOccurrences(of: " ", with: "+")
         }
         
-        // set destAdrr as a URL fand then check if it can be opened.
+        // set urlString as a URL fand then check if it can be opened.
         // If it can be opened then open the application and send it the data via URL
         // if not then open in safari with the web URL using lat and lng
-        let mapURL = URL(string: destAddr)
+        let mapURL = URL(string: urlString)
         if UIApplication.shared.canOpenURL(mapURL!)
         {
             UIApplication.shared.open(mapURL!, options: [:], completionHandler: nil)
@@ -682,7 +680,7 @@ class resultsViewController: UIViewController {
      */
     private func openAppleMaps() {
         // init first part of URL
-        var destAddr = "maps://?daddr="
+        var urlString = "maps://?daddr="
         
         //determine if there is a street number present
         let streetNumIsPresent = containsStreetNum(input: placeAddr.text!)
@@ -690,18 +688,18 @@ class resultsViewController: UIViewController {
         // if a street number is present, then append resturant address to string and remove commas and replace spaces with +
         // if not then use lat and lng of resturant
         if streetNumIsPresent {
-            destAddr.append(placeAddr.text!)
-            destAddr = destAddr.replacingOccurrences(of: ",", with: "")
-            destAddr = destAddr.replacingOccurrences(of: " ", with: "+")
+            urlString.append(placeAddr.text!)
+            urlString = urlString.replacingOccurrences(of: ",", with: "")
+            urlString = urlString.replacingOccurrences(of: " ", with: "+")
         }
         else {
-            destAddr.append("\(restPosCoord.latitude),\(restPosCoord.longitude)")
+            urlString.append("\(restPosCoord.latitude),\(restPosCoord.longitude)")
         }
         
         // init string as URL
         // if the url can be opened in apple maps then open apple maps and display directions to resturant
         // if not then open google maps with safari to display directions
-        let mapURL = URL(string: destAddr)
+        let mapURL = URL(string: urlString)
         if UIApplication.shared.canOpenURL(mapURL!)
         {
             UIApplication.shared.open(mapURL!, options: [:], completionHandler: nil)
