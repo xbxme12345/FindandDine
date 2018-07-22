@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import GooglePlaces
 import GoogleMaps
+import CDYelpFusionKit
 import SQLite3
 
 @UIApplicationMain
@@ -18,16 +19,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
         // Google Places SDK
         GMSPlacesClient.provideAPIKey("AIzaSyDdLhpdN6aFFKsPfQ9SdnP8P1UIqxNhAjQ")
-        //GMSServices.provideAPIKey("AIzaSyDdLhpdN6aFFKsPfQ9SdnP8P1UIqxNhAjQ")
+
+        // Google Maps SDK
         GMSServices.provideAPIKey("AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg")
         
-        // Firebase Realtime Database
-        FirebaseApp.configure()
         // CD Yelp Fusion Kit API
         CDYelpFusionKitManager.shared.configure()
+        
         return true
     }
 
