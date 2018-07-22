@@ -229,25 +229,27 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         
         for address in allAddressArr {
             // URL string that returns the JSON object for parsing
-            let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=\(self.location)&destinations=\(address)&key=AIzaSyAif9oTDr1DTrTP1Z7oxsmdp3SSnwSHr-g"
+            let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=\(self.location)&destinations=\(address)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
             
-            /*Url not returned value, is NIL (FIXXX!!!) */
-            // set urlString to be URL type
-            //guard let url = URL(string: urlString) else { return }
+            guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else { return }
             
-            print("Location Input: ", self.location)
-            print("Address: ", address)
-            print(urlString)
-            /*
-            let task = URLSession.shared.dataTask(with: url2) {(data, response, error) in
-                
+            let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
                 guard let dataResponse = data, error == nil else {
                     print(error?.localizedDescription ?? "Response Error")
                     return
                 }
-                guard let data2 = data else {return}
-                print(data2)
-            }*/
+                
+                do {
+                    let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
+                    guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
+                
+                    print(jsonArray)
+                    
+                } catch let parsingError {
+                    print(parsingError)
+                }
+            }
+            
         }
     }
     
