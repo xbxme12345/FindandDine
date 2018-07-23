@@ -31,6 +31,10 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         super.viewDidLoad()
         
         placesClient = GMSPlacesClient.shared()
+        
+        //add Done buttons to keyboard tool bar. Used to dismiss keyboard when user is done with input
+        locationInput.addDoneButtonOnKeyboard()
+        travelDistanceInput.addDoneButtonOnKeyboard()
     }
     
     /*

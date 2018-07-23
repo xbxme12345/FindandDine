@@ -85,7 +85,9 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     //Array to store food truck addresses which are within travel distance input of the user's current location
     var closeByFTAddress = [String]()
     
-    var distanceText = Set<String>()
+    //Arrays used to store distance between origin and destination
+    var distanceText = [String]()
+    var distanceDouble = [Double]()
     
     //Init location manager
     private let locationManager = CLLocationManager()
@@ -121,12 +123,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         //Set location manager delegate and request for location use if not authorized already
         //locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
-        
-        //If 'Use Current Location' button was pressed, then get the current location of the device and store for use in the geocodeRequest function
-        
-        
-        //convert distance from miles to meters
-        
     
         //Prints out values passed through segue from ftViewController
         print("Location: ", location)
@@ -197,12 +193,64 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 print("Error ", parsingError)
             }
             
-            //Create function and pass the values of allFTAddress to calculate
+            //Assign array to allFTAddressArr to be passed into a function
             let allFTAddressArr = Array(self.allFTAddress)
-            //print(allFTAddressArr)
+            
+            //Input array to calculate distance between all food truck addresses
             self.getDistLoc(inputArray: allFTAddressArr)
+            
+            //Converting the travel distance from miles to kilometer and storing as a double
+            let travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
+            print("travel distance: ", travelDistKM)
+            
+            //Convert all distance calculated and convert to double
+            //Append all resulting double values to distanceDouble array
+            for val in self.distanceText {
+                let result = String(val.characters.dropLast(2))
+                var result2 = result.trimmingCharacters(in: .whitespacesAndNewlines)
+                var result3 = result2.replacingOccurrences(of: ",", with: "")
+                var result4 = NSString(string: result3).doubleValue
+                self.distanceDouble.append(result4)
+            }
+            
+            print(self.distanceDouble)
+            
+            //Compare all distance to user inputted travel distance
+            //distance <= user input travel distance
+            for i in self.distanceDouble {
+                if(i <= travelDistKM) {
+                    
+                } else {
+                    //Skip if distance > user input travel distance
+                }
+            }
+            
+            /*
+            for add in allFTAddressArr {
+                
+            }
+            */
+
         }
         task.resume()
+    }
+    
+    /**
+     Purpose: Convert distance from miles to meters
+     
+     Return: return converted distance
+     */
+    func getDistance(distance: Double) -> Double {
+        // formula for converting miles to meters
+        let distanceInMeters = distance * 1.60934
+        
+        // return distance in meters
+        return distanceInMeters
+    }
+    
+    func convertDistDouble(distance: Double) -> Double {
+        let distanceInKM = distance * 1.0
+        return distanceInKM
     }
     
     /*
@@ -228,7 +276,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 
                 let distance = dic["distance"] as! NSDictionary
                 if let distanceTxt = distance["text"] as? String {
-                    self.distanceText.insert(distanceTxt)
+                    self.distanceText.append(distanceTxt)
                 }
                 
             } catch {
