@@ -79,6 +79,7 @@ struct yelpRestInfo {
     let price: String
     let lat: Double
     let lng: Double
+    let imageURL: String
 }
 
 class resultsViewController: UIViewController {
@@ -308,7 +309,7 @@ class resultsViewController: UIViewController {
                         // if rating of restaurant is above minRating, then add to yelpRestList
                         if elem.rating! >= minRating {
                             self.results = 0
-                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!))
+                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!))
                         }
                     }
                 }
@@ -326,7 +327,7 @@ class resultsViewController: UIViewController {
                 self.randomNumList.append(self.randomNum)
                 
                 // update display to the first randomly generated resturant
-                self.setDisplay(name: self.yelpRestList[self.randomNum].name, addr: self.yelpRestList[self.randomNum].addr, rating: self.yelpRestList[self.randomNum].rating, price: self.yelpRestList[self.randomNum].price)
+                self.setDisplay(name: self.yelpRestList[self.randomNum].name, addr: self.yelpRestList[self.randomNum].addr, rating: self.yelpRestList[self.randomNum].rating, price: self.yelpRestList[self.randomNum].price, imageURL: self.yelpRestList[self.randomNum].imageURL)
                 
                 // set coordinates of resturant
                 self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
@@ -340,14 +341,42 @@ class resultsViewController: UIViewController {
     }
     
     // update display to show results found from yelp search
-    func setDisplay(name: String, addr: String, rating: Float, price: String) {
+    func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String) {
         // update UI in main queue because UI changes must be done in the main queue
         DispatchQueue.main.async {
             self.restaurantName.text = name
             self.placeAddr.text = addr
             self.placeRating.text = String(rating)
             self.placePrice.text = price
+            
+            let restImageURL = URL(string: imageURL)
+            
+            let imageSession = URLSession(configuration: .default)
+            
+            let imageDownload = imageSession.dataTask(with: restImageURL!) { (data, response, error) in
+                // The download has finished.
+                if let e = error {
+                    print("Error downloading cat picture: \(e)")
+                } else {
+                    // No errors found.
+                    // It would be weird if we didn't have a response, so check for that too.
+                    if let res = response as? HTTPURLResponse {
+                        print("Downloaded cat picture with response code \(res.statusCode)")
+                        if let imageData = data {
+                            // Finally convert that Data into an image and do what you wish with it.
+                            let image = UIImage(data: imageData)
+                            // Do something with your image.
+                        } else {
+                            print("Couldn't get image: Image is nil")
+                        }
+                    } else {
+                        print("Couldn't get response code for some reason")
+                    }
+                }
+                
+            }
             // need to figure out how to handle images from yelp
+            imageDownload.resume()
         }
     }
     
@@ -520,7 +549,7 @@ class resultsViewController: UIViewController {
                 restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
             }
             else {
-                setDisplay(name: yelpRestList[randomNum].name, addr: yelpRestList[randomNum].addr, rating: yelpRestList[randomNum].rating, price: yelpRestList[randomNum].price)
+                setDisplay(name: yelpRestList[randomNum].name, addr: yelpRestList[randomNum].addr, rating: yelpRestList[randomNum].rating, price: yelpRestList[randomNum].price, imageURL: yelpRestList[randomNum].imageURL)
                 
                 restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
             }
