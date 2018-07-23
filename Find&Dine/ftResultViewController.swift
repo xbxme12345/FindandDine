@@ -83,11 +83,12 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     var tmpDistAddress = [distanceLoc]()
     
     //Array to store food truck addresses which are within travel distance input of the user's current location
-    var closeByFTAddress = [String]()
+    var closeByFTAddress = Set<String>()
     
     //Arrays used to store distance between origin and destination
     var distanceText = [String]()
     var distanceDouble = [Double]()
+    var closeDistStore = [Double]()
     
     //Init location manager
     private let locationManager = CLLocationManager()
@@ -213,17 +214,26 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 self.distanceDouble.append(result4)
             }
             
-            print(self.distanceDouble)
-            
             //Compare all distance to user inputted travel distance
             //distance <= user input travel distance
             for i in self.distanceDouble {
                 if(i <= travelDistKM) {
-                    
+                    //Stores the distance that are <= user input travel distance
+                    self.closeDistStore.append(i)
                 } else {
                     //Skip if distance > user input travel distance
                 }
             }
+            
+            //Get the index of the stored distance in closeDistStore array from distanceDouble array of all addresses
+            //Take the index value to locate the address and append to string set
+            for i in self.closeDistStore {
+                let val = self.distanceDouble.index(of: i)
+                let locIndex = allFTAddressArr[val!]
+                self.closeByFTAddress.insert(locIndex)
+            }
+            
+            
             
             /*
             for add in allFTAddressArr {
