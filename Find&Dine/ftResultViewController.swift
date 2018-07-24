@@ -33,10 +33,10 @@ struct ftJSON: Codable {
 }
 // supplementary structs
 struct ftResult: Codable {
-    let location: String?
-    let mealValue: String?
-    let dayValue: String?
-    let ftName: String?
+    let location: String
+    let mealValue: String
+    let dayValue: String
+    let ftName: String
 }
 
 struct Food_Truck {
@@ -291,38 +291,20 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                     return
             }
             
-            //self.dayOfWeekValue
-            //self.typeOfMealValue
-            
-            // make sure data is data
-            guard let data = data else { return }
-            
             //Parse through json file using close by address, user selected type of meal and day of the week
             //Append all results/food truck info to array
             do {
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
                 guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
                 
-                /*
-                var model = [Food_Truck]()
-                for dic in jsonArray {
-                    model.append(Food_Truck(dic))
-                }*/
-                
-                //print(model[5].foodTruck)
-                
-                // Decode retrived data with JSONDecoder into format specified by geocodingJSON
-                let decoder = JSONDecoder()
-                let foodTruckInfo = try decoder.decode([ftResult].self, from: data)
-                
-                
-                
-                for add in address {
-                    for elem in (foodTruckInfo) {
-                        if elem.location == add {
-                            print("Matches")
-                        } else {
-                            print("Does not match")
+                for elem in jsonArray {
+                    if address.contains(elem["Location"] as! String) {
+                        if self.typeOfMealValue.contains(elem["Meal"] as! String) {
+                            if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
+                                let name = elem["FoodTruck"]
+                                print(name)
+                                print(elem["Location"])
+                            }
                         }
                     }
                 }
@@ -330,28 +312,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             } catch let parsingError {
                 print("Error: ", parsingError)
             }
-            /*
-            for add in address {
-                do {
-                    let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
-                    guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
-                    
-                    var temp: [String] = []
-                    for dic in jsonArray {
-                        let ftLocation = dic["Location"] as? String
-                        let ftMeal = dic["Meal"] as? String
-                        let ftDay = dic["DayofWeek"] as? String
-                        let ftName = dic["FoodTruck"] as? String
-                        print("Meal:", ftMeal)
-                        if(ftLocation == add) {
-                            print(ftLocation)
-                        }
-                    }
-                    
-                } catch let parsingError {
-                    print("Error: ", parsingError)
-                }
-            }*/
         }
         task.resume()
     }
