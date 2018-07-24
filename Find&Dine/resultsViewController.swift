@@ -234,14 +234,16 @@ class resultsViewController: UIViewController {
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
-        // replace spaces in keyword with + for API call and set keyword to all lowercase
+        // replace spaces in keyword with + for API call and set keyword to all lowercase and remove trailing whitespace
         var word = keyword
-        if keyword.contains(" ") {
+        word = word.trimmingCharacters(in: .whitespaces)
+        word = word.lowercased()
+        // check or spaces in keyword string, replace them with + if present
+        if word.contains(" ") {
             word = keyword.replacingOccurrences(of: " ", with: "+")
-            word = word.lowercased()
         }
-        
-        // price handler
+ 
+        // check to see if minPrice is greater than maxPrice. This can happen when maxPrice options are disabled and a new maxPrice is not selected. 
         var num = minPrice
         var priceString = String(minPrice)
         // if the maxPrice is lower than minPrice, then set minPrice as the price level to be used
@@ -320,7 +322,7 @@ class resultsViewController: UIViewController {
                 }
             }
             catch let jsonError { print(jsonError) }
-            
+            // if results are returned step in
             if self.yelpRestList.count != 0 {
                 // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
                 self.randomNum = Int(arc4random_uniform(UInt32(self.yelpRestList.count)))
@@ -340,7 +342,9 @@ class resultsViewController: UIViewController {
         task.resume()
     }
     
-    // update display to show results found from yelp search
+    /**
+     Purpose: update display to show a result found from yelp search
+     */
     func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String) {
         // update UI in main queue because UI changes must be done in the main queue
         DispatchQueue.main.async {
@@ -348,36 +352,51 @@ class resultsViewController: UIViewController {
             self.placeAddr.text = addr
             self.placeRating.text = String(rating)
             self.placePrice.text = price
-            
-            let restImageURL = URL(string: imageURL)
-            
-            let imageSession = URLSession(configuration: .default)
-            
-            let imageDownload = imageSession.dataTask(with: restImageURL!) { (data, response, error) in
-                // The download has finished.
-                if let e = error {
-                    print("Error downloading cat picture: \(e)")
-                } else {
-                    // No errors found.
-                    // It would be weird if we didn't have a response, so check for that too.
-                    if let res = response as? HTTPURLResponse {
-                        print("Downloaded cat picture with response code \(res.statusCode)")
-                        if let imageData = data {
-                            // Finally convert that Data into an image and do what you wish with it.
-                            let image = UIImage(data: imageData)
-                            // Do something with your image.
-                        } else {
-                            print("Couldn't get image: Image is nil")
-                        }
-                    } else {
-                        print("Couldn't get response code for some reason")
-                    }
-                }
-                
-            }
-            // need to figure out how to handle images from yelp
-            imageDownload.resume()
+            print(imageURL)
+            self.displayYelpImage(imageURL: imageURL)
         }
+    }
+    
+    /**
+     Purpose: to download the image from the imageURL and display to user.
+     */
+    func displayYelpImage(imageURL: String) {
+        // store imageURL as a URL type
+        let restImageURL = URL(string: imageURL)
+        
+        // init URLSession
+        let imageSession = URLSession(configuration: .default)
+        
+        // create task to download image
+        let imageDownload = imageSession.dataTask(with: restImageURL!) { (data, response, error) in
+            // check for error
+            if let e = error {
+                print("Error downloading cat picture: \(e)")
+            } else {
+                //in case of now error, checking wheather the response is nil or not
+                if (response as? HTTPURLResponse) != nil {
+                    
+                    //checking if the response contains an image
+                    if let imageData = data {
+                        
+                        //getting the image
+                        let image = UIImage(data: imageData)
+                        
+                        //displaying the image
+                        DispatchQueue.main.async {
+                            self.restaurantImage.image = image
+                        }
+                        
+                    } else {
+                        print("Image file is corrupted")
+                    }
+                } else {
+                    print("No response from server")
+                }
+            }
+        }
+        // resume task defined above
+        imageDownload.resume()
     }
     
     /**
