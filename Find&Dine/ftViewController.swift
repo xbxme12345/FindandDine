@@ -35,6 +35,11 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         //add Done buttons to keyboard tool bar. Used to dismiss keyboard when user is done with input
         locationInput.addDoneButtonOnKeyboard()
         travelDistanceInput.addDoneButtonOnKeyboard()
+        
+        let rightBarButton = UIBarButtonItem(title: "Find", style: .plain, target: self, action: #selector(findFT))
+        
+        // add to navigation bar
+        self.navigationItem.rightBarButtonItem = rightBarButton
     }
     
     /*
@@ -75,7 +80,10 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     */
     @IBAction func dayBtnPressed(_ sender: Any) {
         //Setup for TCPickerView module - dayOfWeek Selection
-        var picker: TCPickerViewInput = TCPickerView()
+        let screenWidth: CGFloat = UIScreen.main.bounds.width
+        let width: CGFloat = screenWidth - 64
+        let height: CGFloat = 500
+        var picker: TCPickerViewInput = TCPickerView(size: CGSize(width: width, height: height))
         picker.title = "Day of the Week"
         let dayOfWeek = [
             "Monday",
@@ -112,11 +120,44 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         print("User select row at index: \(index)")
     }
     
+    
+    @objc func findFT() {
+        //if both location and distance are specified, then send all info to resultsVC
+        if locationInput.text != "" && travelDistanceInput.text != "" {
+            performSegue(withIdentifier: "foodTruckList", sender: self)
+        }
+            // else display alert to user notifying them to fill out both fields
+        else if locationInput.text == "" || travelDistanceInput.text == "" {
+            // init alert
+            let alert = UIAlertController(title: "Input Error", message: "Please specify a location and search radius.", preferredStyle: .alert)
+            
+            // add close option. Selecting this option will call openGoogleMaps
+            alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
+            
+            // display alert to user
+            self.present(alert, animated: true)
+        }
+    }
+    
     /*
      Purpose: 
     */
     @IBAction func findFoodTruck(_ sender: Any) {
-        performSegue(withIdentifier: "foodTruckList", sender: self)
+        // if both location and distance are specified, then send all info to resultsVC
+        if locationInput.text != "" && travelDistanceInput.text != "" {
+            performSegue(withIdentifier: "foodTruckList", sender: self)
+        }
+            // else display alert to user notifying them to fill out both fields
+        else if locationInput.text == "" || travelDistanceInput.text == "" {
+            // init alert
+            let alert = UIAlertController(title: "Input Error", message: "Please specify a location and search radius.", preferredStyle: .alert)
+            
+            // add close option. Selecting this option will call openGoogleMaps
+            alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
+            
+            // display alert to user
+            self.present(alert, animated: true)
+        }
     }
     
     /*

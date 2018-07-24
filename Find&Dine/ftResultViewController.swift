@@ -26,6 +26,19 @@ struct Food_Truck: Decodable{
     }
 }*/
 
+struct ftJSON: Codable {
+    let html_attributions = [String:String]()
+    let results: [ftResult]?
+    let status: String
+}
+// supplementary structs
+struct ftResult: Codable {
+    let location: String?
+    let mealValue: String?
+    let dayValue: String?
+    let ftName: String?
+}
+
 struct Food_Truck {
     var meal: String
     var location: String
@@ -233,14 +246,8 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 self.closeByFTAddress.insert(locIndex)
             }
             
-            
-            
-            /*
-            for add in allFTAddressArr {
-                
-            }
-            */
-
+            //Calls function
+            self.getFoodTruckInfo(address: self.closeByFTAddress)
         }
         task.resume()
     }
@@ -258,9 +265,95 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         return distanceInMeters
     }
     
+    /*
+     Purpose: Change distance from string to double
+     
+     Return: Returns distance as double
+    */
     func convertDistDouble(distance: Double) -> Double {
         let distanceInKM = distance * 1.0
         return distanceInKM
+    }
+    
+    /*
+     Purpose: Get food truck info based upon address that are close to user's location
+    */
+    func getFoodTruckInfo(address: Set<String>) {
+        //JSON file link for food truck info
+        //URL string that returns the JSON object for parsing
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/7ab6645d4b8049975b67e29883eb0bb5176575de/foodtruck.json") else {return}
+        
+        //Intitialize the URL session with the online food truck JSON file
+        let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
+            guard let dataResponse = data,
+                error == nil else {
+                    print(error?.localizedDescription ?? "Response Error")
+                    return
+            }
+            
+            //self.dayOfWeekValue
+            //self.typeOfMealValue
+            
+            // make sure data is data
+            guard let data = data else { return }
+            
+            //Parse through json file using close by address, user selected type of meal and day of the week
+            //Append all results/food truck info to array
+            do {
+                let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
+                guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
+                
+                /*
+                var model = [Food_Truck]()
+                for dic in jsonArray {
+                    model.append(Food_Truck(dic))
+                }*/
+                
+                //print(model[5].foodTruck)
+                
+                // Decode retrived data with JSONDecoder into format specified by geocodingJSON
+                let decoder = JSONDecoder()
+                let foodTruckInfo = try decoder.decode([ftResult].self, from: data)
+                
+                
+                
+                for add in address {
+                    for elem in (foodTruckInfo) {
+                        if elem.location == add {
+                            print("Matches")
+                        } else {
+                            print("Does not match")
+                        }
+                    }
+                }
+                
+            } catch let parsingError {
+                print("Error: ", parsingError)
+            }
+            /*
+            for add in address {
+                do {
+                    let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
+                    guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
+                    
+                    var temp: [String] = []
+                    for dic in jsonArray {
+                        let ftLocation = dic["Location"] as? String
+                        let ftMeal = dic["Meal"] as? String
+                        let ftDay = dic["DayofWeek"] as? String
+                        let ftName = dic["FoodTruck"] as? String
+                        print("Meal:", ftMeal)
+                        if(ftLocation == add) {
+                            print(ftLocation)
+                        }
+                    }
+                    
+                } catch let parsingError {
+                    print("Error: ", parsingError)
+                }
+            }*/
+        }
+        task.resume()
     }
     
     /*
@@ -295,6 +388,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             
         }
     }
-    
 }
+
 
