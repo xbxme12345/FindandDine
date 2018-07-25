@@ -112,7 +112,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "cell")
+        let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "cell")
 
         if (tableViewFoodTruck.contentSize.height < tableView.frame.size.height) {
             tableViewFoodTruck.isScrollEnabled = false;
@@ -123,22 +123,10 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         let foodTruck: ftInfo
         foodTruck = foodTruckList[indexPath.row]
         cell.textLabel?.text = foodTruck.foodTruckName
-        cell.detailTextLabel?.text = foodTruck.meal
+        cell.detailTextLabel?.text = "\(foodTruck.location)    \(foodTruck.dayOfWeek) \(foodTruck.meal)"
+        
         return cell
     }
-    
-    /* Example to append to FoodTruck list for table view
-    func readJSONObject(object: [String: AnyObject]) {
-        guard let ftData = object["ftData"] as? [[String: AnyObject]] else { return }
-        
-        for FoodTruck in ftData {
-            guard let meal = FoodTruck["meal"] as? String,
-                let dayOfWeek = FoodTruck["DayOfWeek"] as? String,
-                let ftName = FoodTruck["FoodTruck"] as? String else { break }
-            _ = ftName + " for " + meal + " on " + dayOfWeek
-        
-        }
-    }*/
     
     override func viewDidLoad() {
         super.viewDidLoad()
