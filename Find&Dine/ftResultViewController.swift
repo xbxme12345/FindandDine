@@ -70,6 +70,13 @@ struct distanceJSON: Codable {
     var distance: String
 }
 
+var foodTruckList = [ftInfo]()
+var selectedIndex = 0
+var name = ""
+var address = ""
+var meal = ""
+var day = ""
+
 class ftResultViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableViewFoodTruck: UITableView!
@@ -82,7 +89,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     var dayOfWeekValue = [String]()
     
     //Store the food truck to display in table view UI
-    private var foodTruckList = [ftInfo]()
+    //var foodTruckList = [ftInfo]()
     
     //Array to store all distinct addresses in JSON file
     var allFTAddress = Set<String>()
@@ -113,19 +120,40 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "cell")
-
-        if (tableViewFoodTruck.contentSize.height < tableView.frame.size.height) {
-            tableViewFoodTruck.isScrollEnabled = false;
-        }
-        else {
-            tableViewFoodTruck.isScrollEnabled = true;
-        }
+        
+        //Enable scrolling for table view
+        tableViewFoodTruck.isScrollEnabled = true;
+        
         let foodTruck: ftInfo
         foodTruck = foodTruckList[indexPath.row]
         cell.textLabel?.text = foodTruck.foodTruckName
         cell.detailTextLabel?.text = "\(foodTruck.location)    \(foodTruck.dayOfWeek) \(foodTruck.meal)"
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableViewFoodTruck.cellForRow(at: indexPath)
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let foodTruck: ftInfo
+        let selectedIndex = indexPath.row
+        foodTruck = foodTruckList[selectedIndex]
+        name = foodTruck.foodTruckName
+        location = foodTruck.location
+        meal = foodTruck.meal
+        day = foodTruck.dayOfWeek
+        
+        performSegue(withIdentifier: "segue", sender: cell)
+        
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let ftVC = segue.destination as! ftInfoViewController
+        ftVC.ftName = name
+        ftVC.location = location
+        ftVC.meal = meal
+        ftVC.dayOfWeek = day
     }
     
     override func viewDidLoad() {
@@ -159,27 +187,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             do {
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
                 guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
-
-                /*
-                guard let ftMeal = jsonArray[0]["Meal"] as? String else {print("not a meal string"); return}
-                guard let ftLocation = jsonArray[1]["Location"] as? String else {print("not a location string");return}
-                guard let ftDayOfWeek = jsonArray[2]["DayOfWeek"] as? String else {print("not a day of week string"); return}
-                guard let ftName = jsonArray[3]["FoodTruck"] as? String else {print("not a name string");return}
-                
-                print(ftMeal)
-                print(ftLocation)
-                print(ftDayOfWeek)
-                print(ftName)
-                print(" ")*/
-                
-                //Prints all locations and food truck name
-                /*
-                for dic in jsonArray {
-                    guard let ftMeal = dic["Meal"] as? String else {return}
-                    guard let ftLocation = dic["Location"] as? String else {return}
-                    guard let ftDayOfWeek = dic["DayOfWeek"] as? String else {return}
-                    guard let ftName = dic["FoodTruck"] as? String else {return}
-                }*/
                 
                 //Queries through JSON file and obtains all distinct addresses
                 var temp: [String] = []
@@ -192,13 +199,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                         self.allFTAddress.insert(address)
                     }
                 }
-                
-                /*
-                var model = [Food_Truck]()
-                for dic in jsonArray {
-                    model.append(Food_Truck(dic))
-                }
-                print(model[0].foodTruck)*/
                 
             } catch let parsingError {
                 print("Error ", parsingError)
@@ -299,13 +299,11 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                         if self.typeOfMealValue.contains(elem["Meal"] as! String) {
                             if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
                                 //print(elem["FoodTruck"], " at ", elem["Location"], " for ", elem["Meal"])
-                                self.foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as! String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String))
+                                foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as! String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String))
                             }
                         }
                     }
                 }
-                
-                print(self.foodTruckList)
                 
                 DispatchQueue.main.async {
                     self.tableViewFoodTruck.reloadData()
