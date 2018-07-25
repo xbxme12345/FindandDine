@@ -9,6 +9,7 @@
 import Foundation
 import GoogleMaps
 import UIKit
+import MapKit
 
 class ftInfoViewController: UIViewController {
     
@@ -17,7 +18,7 @@ class ftInfoViewController: UIViewController {
     @IBOutlet weak var ftMeal: UILabel!
     @IBOutlet weak var ftDay: UILabel!
     
-    //@IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var mapView: MKMapView!
     
     //local variables for receiving data from tableView VC
     var location = String()

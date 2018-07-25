@@ -120,7 +120,9 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         print("User select row at index: \(index)")
     }
     
-    
+    /*
+     Purpose: Makes sure the location input and travel distance input is not empty
+    */
     @objc func findFT() {
         //if both location and distance are specified, then send all info to resultsVC
         if locationInput.text != "" && travelDistanceInput.text != "" {
@@ -140,29 +142,7 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     }
     
     /*
-     Purpose: 
-    */
-    @IBAction func findFoodTruck(_ sender: Any) {
-        // if both location and distance are specified, then send all info to resultsVC
-        if locationInput.text != "" && travelDistanceInput.text != "" {
-            performSegue(withIdentifier: "foodTruckList", sender: self)
-        }
-            // else display alert to user notifying them to fill out both fields
-        else if locationInput.text == "" || travelDistanceInput.text == "" {
-            // init alert
-            let alert = UIAlertController(title: "Input Error", message: "Please specify a location and search radius.", preferredStyle: .alert)
-            
-            // add close option. Selecting this option will call openGoogleMaps
-            alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
-            
-            // display alert to user
-            self.present(alert, animated: true)
-        }
-    }
-    
-    /*
-     Purpose: Prepare to send data from this ViewController to resultsViewController
-     
+     Purpose: Prepare to send data from ftViewController to ftResultViewController
      */
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let ftVC = segue.destination as! ftResultViewController

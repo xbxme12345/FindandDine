@@ -11,12 +11,13 @@ import UIKit
 import GoogleMaps
 import SQLite3
 
+//Main Struct
 struct ftJSON: Codable {
     let html_attributions = [String:String]()
     let results: [ftResult]?
     let status: String
 }
-// supplementary structs
+//Supplementary struct
 struct ftResult: Codable {
     let location: String
     let mealValue: String
@@ -39,7 +40,7 @@ struct Food_Truck {
 }
 
 /**
- Purpose: defines the RestInfo type. This is the info stored for each resturant
+ Purpose: defines the ftInfo type. This is the info stored for each resturant
  */
 struct ftInfo {
     let meal: String
@@ -70,6 +71,8 @@ struct distanceJSON: Codable {
     var distance: String
 }
 
+//Global Variables to be used on other VC
+//Store the food truck to display in table view UI
 var foodTruckList = [ftInfo]()
 var selectedIndex = 0
 var name = ""
@@ -79,17 +82,15 @@ var day = ""
 
 class ftResultViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
+    //Define connections
     @IBOutlet weak var tableViewFoodTruck: UITableView!
     
-    // local variables for receiving data from 1st VC
+    //Local variables for receiving data from ftViewController
     var locationFlag = Int()
     var location = String()
     var travelDistance = String()
     var typeOfMealValue = [String]()
     var dayOfWeekValue = [String]()
-    
-    //Store the food truck to display in table view UI
-    //var foodTruckList = [ftInfo]()
     
     //Array to store all distinct addresses in JSON file
     var allFTAddress = Set<String>()
@@ -108,16 +109,29 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     //Init location manager
     private let locationManager = CLLocationManager()
     
+    /*
+     Purpose: Determines the number of sections
+     
+     Return: The number of sections
+    */
     func numberOfSections(in tableView: UITableView) -> Int {
-        //Return the number of sections
         return 1
     }
     
+    /*
+     Purpose: Determins the number of rows within the section
+     
+     Return: The number of rows in the section
+    */
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //Return the number of rows in the section
         return foodTruckList.count
     }
     
+    /*
+     Purpose: Fills each cell row with data and details
+     
+     Return: The populated cell
+    */
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "cell")
         
@@ -132,6 +146,9 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         return cell
     }
     
+    /*
+     Purpose: Pass values/data of user selected row to global var. Perform segue to ftInfoViewController
+    */
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableViewFoodTruck.cellForRow(at: indexPath)
         tableView.deselectRow(at: indexPath, animated: true)
@@ -145,9 +162,11 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         day = foodTruck.dayOfWeek
         
         performSegue(withIdentifier: "segue", sender: cell)
-        
     }
     
+    /*
+     Purpose: Prepare to send data from ftResultViewController to ftInfoViewController
+     */
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let ftVC = segue.destination as! ftInfoViewController
         ftVC.ftName = name
@@ -160,7 +179,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewDidLoad()
         
         //Set location manager delegate and request for location use if not authorized already
-        //locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
     
         //Prints out values passed through segue from ftViewController
@@ -180,9 +198,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                     print(error?.localizedDescription ?? "Response Error")
                     return
             }
-            
-            //Clears out array before appending
-            //self.allFTAddress.removeAll()
             
             do {
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
@@ -243,7 +258,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 self.closeByFTAddress.insert(locIndex)
             }
             
-            //Calls function
+            //Calls function to retrieve food truck information
             self.getFoodTruckInfo(address: self.closeByFTAddress)
         }
         task.resume()
