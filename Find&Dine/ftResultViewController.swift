@@ -11,21 +11,6 @@ import UIKit
 import GoogleMaps
 import SQLite3
 
-/*
-struct Food_Truck: Decodable{
-    let meal: String?
-    let location: String?
-    let dayOfWeek: String?
-    let foodTruck: String?
-    
-    init(_ dictionary: [String:Any]) {
-        meal = json["meal"] as? String ?? ""
-        location = json["location"] as? String ?? ""
-        dayOfWeek = json["dayOfWeek"] as? String ?? ""
-        foodTruck = json["foodTruck"] as? String ?? ""
-    }
-}*/
-
 struct ftJSON: Codable {
     let html_attributions = [String:String]()
     let results: [ftResult]?
@@ -51,6 +36,16 @@ struct Food_Truck {
         self.dayOfWeek = dictionary["DayOfWeek"] as? String ?? ""
         self.foodTruck = dictionary["FoodTruck"] as? String ?? ""
     }
+}
+
+/**
+ Purpose: defines the RestInfo type. This is the info stored for each resturant
+ */
+struct ftInfo {
+    let meal: String
+    let location: String
+    let dayOfWeek: String
+    let foodTruckName: String
 }
 
 struct AllFTAddress {
@@ -87,7 +82,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     var dayOfWeekValue = [String]()
     
     //Store the food truck to display in table view UI
-    var foodTruckList = [foodTruck]()
+    private var foodTruckList = [ftInfo]()
     
     //Array to store all distinct addresses in JSON file
     var allFTAddress = Set<String>()
@@ -106,15 +101,29 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     //Init location manager
     private let locationManager = CLLocationManager()
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        //Return the number of sections
+        return 1
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        //Return the number of rows in the section
         return foodTruckList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "cell")
-        let foodTruck: foodTruck
+
+        if (tableViewFoodTruck.contentSize.height < tableView.frame.size.height) {
+            tableViewFoodTruck.isScrollEnabled = false;
+        }
+        else {
+            tableViewFoodTruck.isScrollEnabled = true;
+        }
+        let foodTruck: ftInfo
         foodTruck = foodTruckList[indexPath.row]
         cell.textLabel?.text = foodTruck.foodTruckName
+        cell.detailTextLabel?.text = foodTruck.meal
         return cell
     }
     
@@ -278,7 +287,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     /*
      Purpose: Get food truck info based upon address that are close to user's location
     */
-    func getFoodTruckInfo(address: Set<String>) {
+    func getFoodTruckInfo(address: Set<String>){
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
         guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/7ab6645d4b8049975b67e29883eb0bb5176575de/foodtruck.json") else {return}
@@ -301,18 +310,24 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                     if address.contains(elem["Location"] as! String) {
                         if self.typeOfMealValue.contains(elem["Meal"] as! String) {
                             if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
-                                let name = elem["FoodTruck"]
-                                print(name)
-                                print(elem["Location"])
+                                //print(elem["FoodTruck"], " at ", elem["Location"], " for ", elem["Meal"])
+                                self.foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as! String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String))
                             }
                         }
                     }
+                }
+                
+                print(self.foodTruckList)
+                
+                DispatchQueue.main.async {
+                    self.tableViewFoodTruck.reloadData()
                 }
                 
             } catch let parsingError {
                 print("Error: ", parsingError)
             }
         }
+        
         task.resume()
     }
     
@@ -347,6 +362,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             }
             
         }
+
     }
 }
 

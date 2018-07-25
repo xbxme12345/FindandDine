@@ -9,12 +9,12 @@
 import Foundation
 
 class foodTruck {
-    var meal: String?
-    var location: String?
-    var dayOfWeek: String?
-    var foodTruckName: String?
+    var meal: String
+    var location: String
+    var dayOfWeek: String
+    var foodTruckName: String
     
-    init(meal: String?, location: String?, dayOfWeek: String?, foodTruckName: String?) {
+    init(meal: String, location: String, dayOfWeek: String, foodTruckName: String) {
         self.meal = meal
         self.location = location
         self.dayOfWeek = dayOfWeek
