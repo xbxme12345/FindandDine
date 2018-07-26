@@ -37,7 +37,20 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         self.mapView.mapType = MKMapType.standard
         self.mapView.showsUserLocation = true
         
-        self.mapView.removeAnnotations(self.mapView.annotations)
+        let annotation = MKPointAnnotation()
+        
+        let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(self.location) { (placemarks, error) in
+            let placemark = placemarks?.first
+            let lat = placemark?.location?.coordinate.latitude
+            let lon = placemark?.location?.coordinate.longitude
+            
+            annotation.title = "\(self.ftName)"
+            annotation.subtitle = "\(self.location)"
+            annotation.coordinate = CLLocationCoordinate2D(latitude: lat!, longitude: lon!)
+            self.mapView.addAnnotation(annotation)
+        }
+        //self.mapView.removeAnnotations(self.mapView.annotations)
         print(ftName, " ", location, " ", meal, " ", dayOfWeek)
     }
     
