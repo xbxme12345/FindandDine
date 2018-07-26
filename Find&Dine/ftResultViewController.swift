@@ -233,9 +233,9 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             //Append all resulting double values to distanceDouble array
             for val in self.distanceText {
                 let result = String(val.characters.dropLast(2))
-                var result2 = result.trimmingCharacters(in: .whitespacesAndNewlines)
-                var result3 = result2.replacingOccurrences(of: ",", with: "")
-                var result4 = NSString(string: result3).doubleValue
+                let result2 = result.trimmingCharacters(in: .whitespacesAndNewlines)
+                let result3 = result2.replacingOccurrences(of: ",", with: "")
+                let result4 = NSString(string: result3).doubleValue
                 self.distanceDouble.append(result4)
             }
             
