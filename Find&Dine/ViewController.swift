@@ -38,15 +38,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     private var minPrice = 1
     private var maxPrice = 2
     
-    
     //**** UIPickerView for restaurants and foods
     // separate lists for food and reataurants
-    private let food = ["Burrito", "Pizza", "Burger", "Sushi"]
     private let restaurant = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
     
     // set default list
     private var pickerData = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
-    
+    // africa, asian, bbq, bakery, bar, Brasserie, bistro, brazilian, breakfast, boba, buffet, burger, cafe, club, coffee, deli, diner, German, latin american, mediterranean, nightclub, osteria, pizza, seafood, steakhouse, spanish, sushi, Vegetarian, Vegan, Vietnamese
     /**
      Purpose: To define how many columns show up in the UIPickerView
      
@@ -118,24 +116,24 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      
      Parameter: sender: UISegmentedControl: input from this button determines the output
      */
-    @IBAction func SearchTypeChange(_ sender: UISegmentedControl) {
-        switch searchTypeInput.selectedSegmentIndex {
-        // if set to restaurant, then clear text box and change placeholder text to show examples to user
-        case 0:
-            type = "restaurant"
-            pickerData = restaurant
-            searchKeywordsInput.text = ""
-            searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
-        // if set to food, then clear text box and change placeholder text to show examples to user
-        case 1:
-            type = "food"
-            pickerData = food
-            searchKeywordsInput.text = ""
-            searchKeywordsInput.placeholder = "Pizza, Burritos, Ramen..."
-        default:
-            break
-        }
-    }
+//    @IBAction func SearchTypeChange(_ sender: UISegmentedControl) {
+//        switch searchTypeInput.selectedSegmentIndex {
+//        // if set to restaurant, then clear text box and change placeholder text to show examples to user
+//        case 0:
+//            type = "restaurant"
+//            pickerData = restaurant
+//            searchKeywordsInput.text = ""
+//            searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
+//        // if set to food, then clear text box and change placeholder text to show examples to user
+//        case 1:
+//            type = "food"
+//            pickerData = food
+//            searchKeywordsInput.text = ""
+//            searchKeywordsInput.placeholder = "Pizza, Burritos, Ramen..."
+//        default:
+//            break
+//        }
+//    }
     
     /**
      Purpose: To get the minPrice set by the user
@@ -212,7 +210,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         resultsViewController.minPrice = minPrice
         resultsViewController.maxPrice = maxPrice
         resultsViewController.minRating = Float(rating)
-        resultsViewController.searchType = type
+//        resultsViewController.searchType = type
     }
     
     override func viewDidLoad() {
@@ -232,11 +230,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // update locationInput to display current location
         setCurrentLocation()
         
+        // stop updating location 
+        locationManager.stopUpdatingLocation()
+        
         // set location manager as delegate
         locationManager.delegate = self
         
+        // set inital place holder text for search radius
+        travelDistanceInput.placeholder = "0.5, 1, 2.25,... "
+        
         // set inital place holder text for searchKeywordsInput
-        searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
+        searchKeywordsInput.placeholder = "Enter a restaurant or food type"
         
         // set numeric keypad with decimal for travel distance input
         travelDistanceInput.keyboardType = UIKeyboardType.decimalPad
@@ -287,7 +291,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      Purpose: Retrieve address of current location
      
      Parameter: sender: UIButton, when the button is pressed, execute this function
-     */
+ 
     @IBAction func getCurrentPlace(_ sender: UIButton) {
         // get the current location
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
@@ -308,7 +312,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         
         // flag for use in resultsViewController
         currentLocationUse = 1
-    }
+    }*/
     
     /**
      Purpose: Retrieve address of current location and set locationInput to the address

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="6Sn-Xf-Upq">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="6Sn-Xf-Upq">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -108,14 +108,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bDl-wv-NPC">
-                                <rect key="frame" x="214" y="96" width="146" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <state key="normal" title="Use Current Location"/>
-                                <connections>
-                                    <action selector="getCurrentPlace:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fD0-3e-yMU"/>
-                                </connections>
-                            </button>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="soS-EO-xLQ">
                                 <rect key="frame" x="163" y="412" width="51" height="31"/>
                                 <color key="onTintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -135,27 +127,13 @@
                                     <action selector="maxPriceChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="SU1-id-QHF"/>
                                 </connections>
                             </segmentedControl>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Uag-JS-sMx">
-                                <rect key="frame" x="199" y="250" width="161" height="29"/>
-                                <segments>
-                                    <segment title="Restaurant"/>
-                                    <segment title="Food"/>
-                                </segments>
-                                <connections>
-                                    <action selector="SearchTypeChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="Bjr-Ny-aNM"/>
-                                </connections>
-                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="jRA-ve-0gm" firstAttribute="top" secondItem="zmw-Q2-QNC" secondAttribute="bottom" constant="30" id="0F0-tn-eWm"/>
                             <constraint firstItem="7FM-XD-SYT" firstAttribute="top" secondItem="jRA-ve-0gm" secondAttribute="bottom" constant="5" id="1eL-dO-cbn"/>
                             <constraint firstItem="qaU-Sn-ZQX" firstAttribute="leading" secondItem="RHe-ps-8oX" secondAttribute="trailing" constant="7" id="33e-Sx-UNF"/>
-                            <constraint firstItem="Uag-JS-sMx" firstAttribute="top" secondItem="dgS-xB-Oca" secondAttribute="bottom" constant="16" id="60J-p6-BEf"/>
                             <constraint firstItem="zmw-Q2-QNC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="8Tf-Uy-rMb"/>
-                            <constraint firstItem="bDl-wv-NPC" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="8" id="92v-7H-VX6"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="bDl-wv-NPC" secondAttribute="trailing" constant="15" id="9V5-hG-JnC"/>
-                            <constraint firstItem="Efa-pu-DgV" firstAttribute="top" secondItem="Uag-JS-sMx" secondAttribute="bottom" constant="5" id="9lJ-Hu-17d"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="iai-yJ-uEo" secondAttribute="trailing" constant="180" id="AS9-Zz-Kb7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ScY-21-ixd" secondAttribute="trailing" constant="167" id="B14-d6-3xC"/>
                             <constraint firstItem="jej-Ol-x4a" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="BFr-LI-Ve2"/>
@@ -164,7 +142,6 @@
                             <constraint firstItem="dgS-xB-Oca" firstAttribute="top" secondItem="ScY-21-ixd" secondAttribute="bottom" constant="5" id="KAG-r1-J4U"/>
                             <constraint firstItem="RHe-ps-8oX" firstAttribute="top" secondItem="Efa-pu-DgV" secondAttribute="bottom" constant="20" id="NUX-9d-b6D"/>
                             <constraint firstItem="7FM-XD-SYT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="90" id="O9L-qn-xfX"/>
-                            <constraint firstItem="Uag-JS-sMx" firstAttribute="leading" secondItem="jej-Ol-x4a" secondAttribute="trailing" constant="84" id="OVX-r8-eZ0"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="fqd-Lg-91X" secondAttribute="trailing" constant="90" id="Osx-dm-sD5"/>
                             <constraint firstItem="iai-yJ-uEo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="179" id="Pre-WD-ce6"/>
                             <constraint firstItem="LHc-TD-Ivw" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="R0l-c3-d9i"/>
@@ -178,15 +155,13 @@
                             <constraint firstItem="jej-Ol-x4a" firstAttribute="top" secondItem="dgS-xB-Oca" secondAttribute="bottom" constant="20" id="bZT-Z6-Ec7"/>
                             <constraint firstItem="bxw-a0-4Kr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="bpw-zh-UPj"/>
                             <constraint firstItem="OHv-FD-Jbz" firstAttribute="leading" secondItem="soS-EO-xLQ" secondAttribute="trailing" constant="115" id="d5D-A5-GPo"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Uag-JS-sMx" secondAttribute="trailing" constant="15" id="dbm-0R-5b7"/>
                             <constraint firstItem="soS-EO-xLQ" firstAttribute="leading" secondItem="zmw-Q2-QNC" secondAttribute="trailing" constant="93" id="esA-8H-Dak"/>
                             <constraint firstItem="jRA-ve-0gm" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="gY9-M7-DFx"/>
                             <constraint firstItem="fqd-Lg-91X" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="90" id="h2h-3s-saT"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="LHc-TD-Ivw" secondAttribute="trailing" constant="15" id="h5W-fg-bd8"/>
                             <constraint firstItem="RHe-ps-8oX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="ho1-xe-6iN"/>
                             <constraint firstItem="fqd-Lg-91X" firstAttribute="top" secondItem="iai-yJ-uEo" secondAttribute="bottom" constant="10" id="jOR-CT-dEf"/>
-                            <constraint firstItem="bDl-wv-NPC" firstAttribute="leading" secondItem="bxw-a0-4Kr" secondAttribute="trailing" constant="124" id="lzv-3L-lky"/>
-                            <constraint firstItem="yYH-AI-wqL" firstAttribute="top" secondItem="bDl-wv-NPC" secondAttribute="bottom" constant="2" id="opt-65-QdZ"/>
+                            <constraint firstItem="Efa-pu-DgV" firstAttribute="top" secondItem="jej-Ol-x4a" secondAttribute="bottom" constant="8" id="js5-Or-7I4"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="7FM-XD-SYT" secondAttribute="trailing" constant="90" id="pww-rB-htB"/>
                             <constraint firstItem="qaU-Sn-ZQX" firstAttribute="top" secondItem="Efa-pu-DgV" secondAttribute="bottom" constant="20" id="qlX-5t-BLk"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Efa-pu-DgV" secondAttribute="trailing" constant="15" id="rwN-Rd-E6z"/>
@@ -215,7 +190,6 @@
                         <outlet property="ratingOutput" destination="qaU-Sn-ZQX" id="EiI-FL-QWk"/>
                         <outlet property="reviewServiceInput" destination="soS-EO-xLQ" id="HWQ-V8-IL0"/>
                         <outlet property="searchKeywordsInput" destination="Efa-pu-DgV" id="UZ2-Rn-eQa"/>
-                        <outlet property="searchTypeInput" destination="Uag-JS-sMx" id="hk2-vT-gnU"/>
                         <outlet property="travelDistanceInput" destination="dgS-xB-Oca" id="iPr-9V-Rpn"/>
                     </connections>
                 </viewController>
@@ -394,7 +368,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="aMG-e4-hqT">
+                            <textField opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="aMG-e4-hqT">
                                 <rect key="frame" x="16" y="126" width="343" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <nil key="textColor"/>
@@ -408,15 +382,6 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MXS-8e-rVG">
-                                <rect key="frame" x="213" y="97" width="146" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <state key="normal" title="Use Current Location"/>
-                                <connections>
-                                    <action selector="getCurrentPlace:" destination="z1r-0g-GC2" eventType="primaryActionTriggered" id="p0b-UA-2oq"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Type of Meal: (Breakfast/Lunch/Dinner)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MRd-id-eZV">
                                 <rect key="frame" x="16" y="254" width="300" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

@@ -79,6 +79,7 @@ struct yelpRestInfo {
     let price: String
     let lat: Double
     let lng: Double
+    let imageURL: String
 }
 
 class resultsViewController: UIViewController {
@@ -106,7 +107,7 @@ class resultsViewController: UIViewController {
     var minRating = Float()
     var minPrice = Int()
     var maxPrice = Int()
-    var searchType = String()
+//    var searchType = String()
     
     // variable to store distance converted into meters
     private var travelDistMeters = Double()
@@ -131,6 +132,8 @@ class resultsViewController: UIViewController {
     // used to determine if the JSON result contained data
     private var results = -1
     
+    private var restList = ["american", "cajun", "chinese", "french", "filipino", "greek", "indian", "indonesian", "italian", "japanese", "jewish", "korean", "malaysian", "mexican", "polish" , "portugese", "punjabi", "russian", "thai", "turkish", "africa", "asian", "bbq", "bakery", "bar", "brasserie", "bistro", "brazilian", "breakfast", "boba", "buffet", "burger", "cafe", "club", "coffee", "deli", "diner", "german", "latin", "mediterranean", "nightclub", "osteria", "pizza", "seafood", "steakhouse", "spanish", "sushi", "vegetarian", "vegan", "vietnamese"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -139,10 +142,10 @@ class resultsViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()
         
         // if Use Current Location button was pressed, then get the current location of the device and store those for use in the geocodeRequest function
-        if locationFlag == 1 {
-            originlatitude = (locationManager.location?.coordinate.latitude)!
-            originlongitude = (locationManager.location?.coordinate.longitude)!
-        }
+        //if locationFlag == 1 {
+        originlatitude = (locationManager.location?.coordinate.latitude)!
+        originlongitude = (locationManager.location?.coordinate.longitude)!
+        // }
         
         // convert distance from miles to meters
         travelDistMeters = getDistance(distance: Double(travelDistance)!)
@@ -151,7 +154,7 @@ class resultsViewController: UIViewController {
             print("using Google")
             
             // exec API request to get resturants based on criteria from user
-            googleGetRestaurants(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, type: searchType, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
+            googleGetRestaurants(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
             
             // wait for API call to return results
             while (results == -1) { }
@@ -178,7 +181,7 @@ class resultsViewController: UIViewController {
             print("using Yelp")
             
             // retrieve list of restaurants from Yelp
-            yelpGetRestaurants(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, type: searchType, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
+            yelpGetRestaurants(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
             
             // wait for API call to return results
             while (results == -1) { }
@@ -229,18 +232,26 @@ class resultsViewController: UIViewController {
      maxPrice: Int - maximum price set by user
      minRating: Float - minimum restaurant rating set by user
      */
-    func yelpGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, type: String, minPrice: Int, maxPrice: Int, minRating: Float) {
+    func yelpGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, minPrice: Int, maxPrice: Int, minRating: Float) {
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
-        // replace spaces in keyword with + for API call and set keyword to all lowercase
+        // replace spaces in keyword with + for API call and set keyword to all lowercase and remove trailing whitespace
         var word = keyword
-        if keyword.contains(" ") {
-            word = keyword.replacingOccurrences(of: " ", with: "+")
-            word = word.lowercased()
+        var searchtype = "food"
+        word = word.trimmingCharacters(in: .whitespaces)
+        word = word.lowercased()
+        // if keyword is a restaurant, then set search to restaurant, otherwise use food
+        if restList.contains(word) {
+            searchtype = "restaurant"
         }
         
-        // price handler
+        // check or spaces in keyword string, replace them with + if present
+        if word.contains(" ") {
+            word = keyword.replacingOccurrences(of: " ", with: "+")
+        }
+ 
+        // check to see if minPrice is greater than maxPrice. This can happen when maxPrice options are disabled and a new maxPrice is not selected.
         var num = minPrice
         var priceString = String(minPrice)
         // if the maxPrice is lower than minPrice, then set minPrice as the price level to be used
@@ -255,9 +266,10 @@ class resultsViewController: UIViewController {
                 num+=1
             }
         }
+        print("search type: ", searchtype)
         
         // build URL for API request
-        let urlString = "https://api.yelp.com/v3/businesses/search?term=\(searchType)&latitude=\(lat)&longitude=\(lng)&price=\(priceString)&radius=\(Int(radius))&categories=\(word)"
+        let urlString = "https://api.yelp.com/v3/businesses/search?term=\(searchtype)&latitude=\(lat)&longitude=\(lng)&price=\(priceString)&radius=\(Int(radius))&categories=\(word)"
         
         guard let url = URL(string: urlString) else { return }
         
@@ -308,25 +320,29 @@ class resultsViewController: UIViewController {
                         // if rating of restaurant is above minRating, then add to yelpRestList
                         if elem.rating! >= minRating {
                             self.results = 0
-                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!))
+                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!))
                         }
                     }
                 }
                 else {
                     self.results = 1
-                    print("no results bc no results")
+                    print("no results returned")
                     return
                 }
             }
             catch let jsonError { print(jsonError) }
-            
+            // if results are returned step in
             if self.yelpRestList.count != 0 {
                 // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
                 self.randomNum = Int(arc4random_uniform(UInt32(self.yelpRestList.count)))
                 self.randomNumList.append(self.randomNum)
                 
                 // update display to the first randomly generated resturant
-                self.setDisplay(name: self.yelpRestList[self.randomNum].name, addr: self.yelpRestList[self.randomNum].addr, rating: self.yelpRestList[self.randomNum].rating, price: self.yelpRestList[self.randomNum].price)
+                self.setDisplay(name: self.yelpRestList[self.randomNum].name,
+                                addr: self.yelpRestList[self.randomNum].addr,
+                                rating: self.yelpRestList[self.randomNum].rating,
+                                price: self.yelpRestList[self.randomNum].price,
+                                imageURL: self.yelpRestList[self.randomNum].imageURL)
                 
                 // set coordinates of resturant
                 self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
@@ -339,16 +355,60 @@ class resultsViewController: UIViewController {
         task.resume()
     }
     
-    // update display to show results found from yelp search
-    func setDisplay(name: String, addr: String, rating: Float, price: String) {
+    /**
+     Purpose: update display to show a result found from yelp search
+     */
+    func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String) {
         // update UI in main queue because UI changes must be done in the main queue
         DispatchQueue.main.async {
             self.restaurantName.text = name
             self.placeAddr.text = addr
             self.placeRating.text = String(rating)
             self.placePrice.text = price
-            // need to figure out how to handle images from yelp
+            self.displayYelpImage(imageURL: imageURL)
         }
+    }
+    
+    /**
+     Purpose: to download the image from the imageURL and display to user.
+     */
+    func displayYelpImage(imageURL: String) {
+        // store imageURL as a URL type
+        let restImageURL = URL(string: imageURL)
+        
+        // init URLSession
+        let imageSession = URLSession(configuration: .default)
+        
+        // create task to download image
+        let imageDownload = imageSession.dataTask(with: restImageURL!) { (data, response, error) in
+            // check for error
+            if let e = error {
+                print("Error downloading cat picture: \(e)")
+            } else {
+                //in case of now error, checking wheather the response is nil or not
+                if (response as? HTTPURLResponse) != nil {
+                    
+                    //checking if the response contains an image
+                    if let imageData = data {
+                        
+                        //getting the image
+                        let image = UIImage(data: imageData)
+                        
+                        //displaying the image
+                        DispatchQueue.main.async {
+                            self.restaurantImage.image = image
+                        }
+                        
+                    } else {
+                        print("Image file is corrupted")
+                    }
+                } else {
+                    print("No response from server")
+                }
+            }
+        }
+        // resume task defined above
+        imageDownload.resume()
     }
     
     /**
@@ -363,10 +423,18 @@ class resultsViewController: UIViewController {
      maxPrice: Int - maximum price set by user
      minRating: Float - minimum restaurant rating set by user
      */
-    func googleGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, type: String, minPrice: Int, maxPrice: Int, minRating: Float) {
+    func googleGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, minPrice: Int, maxPrice: Int, minRating: Float) {
+        
+        var word = keyword
+        var searchtype = "food"
+        word = word.trimmingCharacters(in: .whitespaces)
+        word = word.lowercased() 
+        // if the keywrod is a restaurant set API to search restaurants, otherwise food is used
+        if restList.contains(word) {
+            searchtype = "restaurant"
+        }
         
         // replace spaces in keyword with + for API call
-        var word = keyword
         if keyword.contains(" ") {
             word = keyword.replacingOccurrences(of: " ", with: "+")
         }
@@ -377,8 +445,10 @@ class resultsViewController: UIViewController {
             max = minPrice
         }
         
+        print("search type: ", searchtype)
+        
         // URL string that returns the JSON object for parsing
-        let urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=\(lat),\(lng)&radius=\(radius)&type=\(searchType)&minprice=\(minPrice)&maxprice=\(max)&keyword=\(word)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
+        let urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=\(lat),\(lng)&radius=\(radius)&type=\(searchtype)&minprice=\(minPrice)&maxprice=\(max)&keyword=\(word)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
         
         // set urlString to be URL type?
         guard let url = URL(string: urlString) else { return }
@@ -520,7 +590,7 @@ class resultsViewController: UIViewController {
                 restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
             }
             else {
-                setDisplay(name: yelpRestList[randomNum].name, addr: yelpRestList[randomNum].addr, rating: yelpRestList[randomNum].rating, price: yelpRestList[randomNum].price)
+                setDisplay(name: yelpRestList[randomNum].name, addr: yelpRestList[randomNum].addr, rating: yelpRestList[randomNum].rating, price: yelpRestList[randomNum].price, imageURL: yelpRestList[randomNum].imageURL)
                 
                 restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
             }
