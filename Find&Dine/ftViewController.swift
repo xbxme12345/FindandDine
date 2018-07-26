@@ -35,6 +35,11 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         //add Done buttons to keyboard tool bar. Used to dismiss keyboard when user is done with input
         locationInput.addDoneButtonOnKeyboard()
         travelDistanceInput.addDoneButtonOnKeyboard()
+        travelDistanceInput.keyboardType = UIKeyboardType.decimalPad
+        
+        // set location to current device location
+        setCurrentLocation()
+        currentLocationUse = 1 // just incase it needed
         
         let rightBarButton = UIBarButtonItem(title: "Find", style: .plain, target: self, action: #selector(findFT))
         
@@ -141,6 +146,29 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         }
     }
     
+    /**
+     Purpose: Retrieve address of current location and set locationInput to the address
+     */
+    
+    func setCurrentLocation() {
+        // get the current location
+        placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
+            // if there is an error then output the error
+            if let error = error {
+                print("Pick Place error: \(error.localizedDescription)")
+                return
+            }
+            
+            // if there is info about this place then retrieve it and then set the location field to the formatted address of the current location
+            if let placeLikelihoodList = placeLikelihoodList {
+                let place = placeLikelihoodList.likelihoods.first?.place
+                if let place = place {
+                    self.locationInput.text = place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n")
+                }
+            }
+        })
+    }
+    
     /*
      Purpose: Prepare to send data from ftViewController to ftResultViewController
      */
@@ -158,25 +186,25 @@ class ftViewController: UIViewController, TCPickerViewOutput {
      
      Parameter: sender: UIButton, when the button is pressed, execute this function
     */
-    @IBAction func getCurrentPlace(_ sender: Any) {
-        // get the current place
-        placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
-            // if there is an error then output the error
-            if let error = error {
-                print("Pick Place error: \(error.localizedDescription)")
-                return
-            }
-            
-            // if there is info about this place then retrieve it and then set the location field to the formatted address of the current location
-            if let placeLikelihoodList = placeLikelihoodList {
-                let place = placeLikelihoodList.likelihoods.first?.place
-                if let place = place {
-                    self.locationInput.text = place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n")
-                }
-            }
-        })
-        
-        // flag for use in resultsViewController
-        currentLocationUse = 1
-    }
+//    @IBAction func getCurrentPlace(_ sender: Any) {
+//        // get the current place
+//        placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
+//            // if there is an error then output the error
+//            if let error = error {
+//                print("Pick Place error: \(error.localizedDescription)")
+//                return
+//            }
+//
+//            // if there is info about this place then retrieve it and then set the location field to the formatted address of the current location
+//            if let placeLikelihoodList = placeLikelihoodList {
+//                let place = placeLikelihoodList.likelihoods.first?.place
+//                if let place = place {
+//                    self.locationInput.text = place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n")
+//                }
+//            }
+//        })
+//
+//        // flag for use in resultsViewController
+//        currentLocationUse = 1
+//    }
 }
