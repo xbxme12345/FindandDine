@@ -136,6 +136,9 @@ class resultsViewController: UIViewController {
     // used to determine if the JSON result contained data
     private var results = -1
     
+    // keep track of currently displayed restaurant
+    private var currentRandomIndex = 0
+    
     private var restList = ["american", "cajun", "chinese", "french", "filipino", "greek", "indian", "indonesian", "italian", "japanese", "jewish", "korean", "malaysian", "mexican", "polish" , "portugese", "punjabi", "russian", "thai", "turkish", "africa", "asian", "bbq", "bakery", "bar", "brasserie", "bistro", "brazilian", "breakfast", "boba", "buffet", "burger", "cafe", "club", "coffee", "deli", "diner", "german", "latin", "mediterranean", "nightclub", "osteria", "pizza", "seafood", "steakhouse", "spanish", "sushi", "vegetarian", "vegan", "vietnamese"]
     
     override func viewDidLoad() {
@@ -144,6 +147,16 @@ class resultsViewController: UIViewController {
         // set location manager delegate and request for location use if not authorized already
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
+        
+        
+        //init info button
+        let infoButton = UIButton(type: .infoDark)
+        
+        infoButton.addTarget(self, action: #selector(getRestInfo), for: .touchUpInside)
+        
+        let infoBarButtonItem = UIBarButtonItem(customView: infoButton)
+        
+        navigationItem.rightBarButtonItem = infoBarButtonItem
         
         // if Use Current Location button was pressed, then get the current location of the device and store those for use in the geocodeRequest function
         //if locationFlag == 1 {
@@ -158,6 +171,9 @@ class resultsViewController: UIViewController {
         else {
             travelDistMeters = getDistance(distance: Double(travelDistance)!)
         }
+        
+        //disable button
+        displayPrevious.isEnabled = false
         
         if service == "Google" {
             print("using Google")
@@ -380,6 +396,7 @@ class resultsViewController: UIViewController {
             self.placePrice.text = price
             self.displayYelpImage(imageURL: imageURL)
             self.siteURL = siteURL
+            self.placeMarker(position: self.restPosCoord)
         }
     }
     
@@ -388,23 +405,27 @@ class resultsViewController: UIViewController {
      
      Parameters: sender: UIButton: When Website button is pressed, it opens the URL in safari
      */
-    @IBAction func openRestWebsite(_ sender: UIButton) {
+    
+    @objc func getRestInfo() {
+        // store siteURL into local variable
         var urlString = siteURL
         
+        // if spaces are in URL, replace them with +
         if siteURL.contains(" ") {
             urlString = siteURL.replacingOccurrences(of: " ", with: "+")
         }
-        
+        // output URL
         print("URL: ", urlString)
         
+        // if the URL can be opened, then open in safari
         if let webURL = URL(string: urlString) {
             UIApplication.shared.open(webURL, options: [:])
         }
+            // else print error to console
         else {
             print("Error with opening google maps in safari")
         }
     }
-    
     
     /**
      Purpose: to download the image from the imageURL and display to user.
@@ -568,6 +589,10 @@ class resultsViewController: UIViewController {
             self.placePrice.text = self.text(for: place.priceLevel)
             self.loadFirstPhotoForPlace(placeID: place.placeID)
         })
+        
+        DispatchQueue.main.async {
+            self.placeMarker(position: self.restPosCoord)
+        }
     }
     
     /**
@@ -592,6 +617,9 @@ class resultsViewController: UIViewController {
      Parameter: UIButton: waits for the UIButton to be pressed, then executes this function
      */
     @IBAction func SearchAgain(_ sender: UIButton) {
+        // enable previous button
+        displayPrevious.isEnabled = true
+        
         // clear map of existing markers
         mapView.clear()
         
@@ -606,51 +634,120 @@ class resultsViewController: UIViewController {
             size = yelpRestList.count
         }
         
-        // if statement to ensure that we generate the correct amount of random numbers
-        if (randomNumList.count < size) {
-            // store a value
-            var temp = Int()
+        // calc difference between elems in randomNumList and currentRandomIndex
+        let diff = randomNumList.count - currentRandomIndex
+        
+        // if the difference between randomNumList.count and currentRandomIndex > 1, then go to next elem in randomNumList
+        if diff > 1 {
+            // increment currentRandomIndex
+            currentRandomIndex+=1
             
-            // if the random number was already used (in randomNumList) then calculate again
-            repeat {
-                temp = Int(arc4random_uniform(UInt32(size)))
-            } while (randomNumList.contains(temp))
+            // get new randomNumList index
+            let num = randomNumList[currentRandomIndex]
             
-            // update randomNum with new randomNum and add it to the randomNumList
-            randomNum = temp
-            randomNumList.append(temp)
-            
-            // update the display
+            // update display and set coordinates based on service
             if service == "Google" {
-                setDisplay(pid: googleRestList[randomNum].pid)
-                
-                restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
+                setDisplay(pid: googleRestList[num].pid)
+                restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[num].lat, longitude: googleRestList[num].lng)
             }
             else {
-                setDisplay(name: yelpRestList[randomNum].name,
-                           addr: yelpRestList[randomNum].addr,
-                           rating: yelpRestList[randomNum].rating,
-                           price: yelpRestList[randomNum].price,
-                           imageURL: yelpRestList[randomNum].imageURL,
-                           siteURL: yelpRestList[randomNum].siteURL)
-                
-                restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
+                setDisplay(name: yelpRestList[num].name,
+                           addr: yelpRestList[num].addr,
+                           rating: yelpRestList[num].rating,
+                           price: yelpRestList[num].price,
+                           imageURL: yelpRestList[num].imageURL,
+                           siteURL: yelpRestList[num].siteURL)
+                restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[num].lat, longitude: yelpRestList[num].lng)
             }
+        }
+        else {
+            // if statement to ensure that we generate the correct amount of random numbers
+            if (randomNumList.count < size) {
+                
+                // store a value
+                var temp = Int()
+                
+                // if the random number was already used (in randomNumList) then calculate again
+                repeat {
+                    temp = Int(arc4random_uniform(UInt32(size)))
+                } while (randomNumList.contains(temp))
+                
+                // update randomNum with new randomNum and add it to the randomNumList
+                randomNum = temp
+                randomNumList.append(temp)
+                
+                currentRandomIndex = randomNumList.count-1
+                
+                // update the display
+                if service == "Google" {
+                    setDisplay(pid: googleRestList[randomNum].pid)
+                    
+                    restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
+                }
+                else {
+                    setDisplay(name: yelpRestList[randomNum].name,
+                               addr: yelpRestList[randomNum].addr,
+                               rating: yelpRestList[randomNum].rating,
+                               price: yelpRestList[randomNum].price,
+                               imageURL: yelpRestList[randomNum].imageURL,
+                               siteURL: yelpRestList[randomNum].siteURL)
+                    
+                    restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
+                }
 
-            // place new marker
-            placeMarker(position: restPosCoord)
-            
-            // if we have reached the end of the list of restaurants, disable the button
-            if (randomNumList.count == size) {
-                searchAgain.isEnabled = false;
+                // place new marker
+                placeMarker(position: restPosCoord)
+                
+                // if we have reached the end of the list of restaurants, disable the button
+                if (randomNumList.count == size) {
+                    searchAgain.isEnabled = false;
+                }
             }
         }
     }
     
+    /**
+     Purpose: To display the previously shown restaurant to the user
+     
+     Parameter: sender: UIButton: when the previous button is pressed, exec function
+     */
     @IBAction func displayPrevious(_ sender: UIButton) {
+        // enable true button
+        searchAgain.isEnabled = true
         
+        // clear map of existing markers
+        mapView.clear()
+
+        // decrement current index
+        currentRandomIndex-=1
+        
+        print("currentRandomIndex, decrement: ", currentRandomIndex)
+        
+        // get the current elem from randomNumList
+        let currentElem = randomNumList[currentRandomIndex]
+        
+        // set display and coordinates of restaurant based on service
+        if service == "Google" {
+            setDisplay(pid: googleRestList[currentElem].pid)
+            
+            restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[currentElem].lat, longitude: googleRestList[currentElem].lng)
+        }
+        else if service == "Yelp" {
+            setDisplay(name: yelpRestList[currentElem].name,
+                       addr: yelpRestList[currentElem].addr,
+                       rating: yelpRestList[currentElem].rating,
+                       price: yelpRestList[currentElem].price,
+                       imageURL: yelpRestList[currentElem].imageURL,
+                       siteURL: yelpRestList[currentElem].siteURL)
+            
+            restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[currentElem].lat, longitude: yelpRestList[currentElem].lng)
+        }
+        
+        // if we reach the first element in the list, then disable the button
+        if currentRandomIndex == 0 {
+            displayPrevious.isEnabled = false
+        }
     }
-    
     
     /**
      Purpose: Convert distance from miles to meters
