@@ -56,6 +56,7 @@ struct yelpJSON: Codable {
 struct rest: Codable {
     let name: String?
     let image_url: String?
+    let url: String?
     let rating: Float?
     let coordinates: coordYelp?
     let price: String?
@@ -80,6 +81,7 @@ struct yelpRestInfo {
     let lat: Double
     let lng: Double
     let imageURL: String
+    let siteURL: String
 }
 
 class resultsViewController: UIViewController {
@@ -97,6 +99,7 @@ class resultsViewController: UIViewController {
     @IBOutlet weak var placePrice: UILabel!
     @IBOutlet weak var restaurantImage: UIImageView!
     @IBOutlet weak var searchAgain: UIButton!
+    @IBOutlet weak var displayPrevious: UIButton!
     
     // local variables for receiving data from 1st VC
     var locationFlag = Int()
@@ -108,6 +111,7 @@ class resultsViewController: UIViewController {
     var minPrice = Int()
     var maxPrice = Int()
 //    var searchType = String()
+    private var siteURL = String()
     
     // variable to store distance converted into meters
     private var travelDistMeters = Double()
@@ -148,7 +152,12 @@ class resultsViewController: UIViewController {
         // }
         
         // convert distance from miles to meters
-        travelDistMeters = getDistance(distance: Double(travelDistance)!)
+        if Double(travelDistance)! > 25.0 {
+            travelDistMeters = getDistance(distance: 25.0)
+        }
+        else {
+            travelDistMeters = getDistance(distance: Double(travelDistance)!)
+        }
         
         if service == "Google" {
             print("using Google")
@@ -320,7 +329,7 @@ class resultsViewController: UIViewController {
                         // if rating of restaurant is above minRating, then add to yelpRestList
                         if elem.rating! >= minRating {
                             self.results = 0
-                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!))
+                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!, siteURL: elem.url!))
                         }
                     }
                 }
@@ -333,6 +342,9 @@ class resultsViewController: UIViewController {
             catch let jsonError { print(jsonError) }
             // if results are returned step in
             if self.yelpRestList.count != 0 {
+                // set button to open currently displayed restaurant's website
+//                self.siteURL = self.yelpRestList[self.randomNum].siteURL
+                
                 // calculate a random number and add to list of random numbers. this list is used to ensure that there are no duplicate random numbers used
                 self.randomNum = Int(arc4random_uniform(UInt32(self.yelpRestList.count)))
                 self.randomNumList.append(self.randomNum)
@@ -342,7 +354,8 @@ class resultsViewController: UIViewController {
                                 addr: self.yelpRestList[self.randomNum].addr,
                                 rating: self.yelpRestList[self.randomNum].rating,
                                 price: self.yelpRestList[self.randomNum].price,
-                                imageURL: self.yelpRestList[self.randomNum].imageURL)
+                                imageURL: self.yelpRestList[self.randomNum].imageURL,
+                                siteURL: self.yelpRestList[self.randomNum].siteURL)
                 
                 // set coordinates of resturant
                 self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
@@ -358,7 +371,7 @@ class resultsViewController: UIViewController {
     /**
      Purpose: update display to show a result found from yelp search
      */
-    func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String) {
+    func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String, siteURL: String) {
         // update UI in main queue because UI changes must be done in the main queue
         DispatchQueue.main.async {
             self.restaurantName.text = name
@@ -366,8 +379,32 @@ class resultsViewController: UIViewController {
             self.placeRating.text = String(rating)
             self.placePrice.text = price
             self.displayYelpImage(imageURL: imageURL)
+            self.siteURL = siteURL
         }
     }
+    
+    /**
+     Purpose: To open the website retrieved from the API calls
+     
+     Parameters: sender: UIButton: When Website button is pressed, it opens the URL in safari
+     */
+    @IBAction func openRestWebsite(_ sender: UIButton) {
+        var urlString = siteURL
+        
+        if siteURL.contains(" ") {
+            urlString = siteURL.replacingOccurrences(of: " ", with: "+")
+        }
+        
+        print("URL: ", urlString)
+        
+        if let webURL = URL(string: urlString) {
+            UIApplication.shared.open(webURL, options: [:])
+        }
+        else {
+            print("Error with opening google maps in safari")
+        }
+    }
+    
     
     /**
      Purpose: to download the image from the imageURL and display to user.
@@ -398,7 +435,6 @@ class resultsViewController: UIViewController {
                         DispatchQueue.main.async {
                             self.restaurantImage.image = image
                         }
-                        
                     } else {
                         print("Image file is corrupted")
                     }
@@ -525,6 +561,7 @@ class resultsViewController: UIViewController {
             }
             
             // set text fields to the resturant info
+            self.siteURL = "https://www.google.com/search?q=\(place.name)+\(place.formattedAddress!)"
             self.restaurantName.text = place.name
             self.placeAddr.text = place.formattedAddress
             self.placeRating.text = String(place.rating)
@@ -543,7 +580,7 @@ class resultsViewController: UIViewController {
         let marker = GMSMarker(position: position)
         
         //set title of the marker to the name of the resturant
-        marker.title = restaurantName.text
+//        marker.title = restaurantName.text
         
         //update the map
         marker.map = mapView
@@ -590,7 +627,12 @@ class resultsViewController: UIViewController {
                 restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
             }
             else {
-                setDisplay(name: yelpRestList[randomNum].name, addr: yelpRestList[randomNum].addr, rating: yelpRestList[randomNum].rating, price: yelpRestList[randomNum].price, imageURL: yelpRestList[randomNum].imageURL)
+                setDisplay(name: yelpRestList[randomNum].name,
+                           addr: yelpRestList[randomNum].addr,
+                           rating: yelpRestList[randomNum].rating,
+                           price: yelpRestList[randomNum].price,
+                           imageURL: yelpRestList[randomNum].imageURL,
+                           siteURL: yelpRestList[randomNum].siteURL)
                 
                 restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
             }
@@ -604,6 +646,11 @@ class resultsViewController: UIViewController {
             }
         }
     }
+    
+    @IBAction func displayPrevious(_ sender: UIButton) {
+        
+    }
+    
     
     /**
      Purpose: Convert distance from miles to meters
@@ -845,16 +892,16 @@ extension resultsViewController: CLLocationManagerDelegate {
         else if dist > 0.6 && dist <= 1.5 {
             zoom = 13
         }
-        else if dist > 1.6 && dist <= 2.5 {
+        else if dist > 1.6 && dist <= 3.5 {
             zoom = 12
         }
-        else if dist > 2.5 && dist <= 4 {
+        else if dist > 3.6 && dist <= 5.5 {
             zoom = 11
         }
-        else if dist > 4 {
+        else { 
             zoom = 10
         }
-        
+
         // set camera position and zoom
         mapView.camera = GMSCameraPosition(target: location.coordinate, zoom: zoom, bearing: 0, viewingAngle: 0)
         // stop updating location of user

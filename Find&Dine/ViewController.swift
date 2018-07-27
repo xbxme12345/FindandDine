@@ -22,11 +22,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     @IBOutlet weak var travelDistanceInput: UITextField!
     @IBOutlet weak var searchKeywordsInput: UITextField!
     @IBOutlet weak var ratingInput: UISlider!
-    @IBOutlet weak var reviewServiceInput: UISwitch!
+    @IBOutlet weak var suggestionButton: UIButton!
     @IBOutlet weak var minPriceInput: UISegmentedControl!
     @IBOutlet weak var maxPriceInput: UISegmentedControl!
     @IBOutlet weak var ratingOutput: UILabel!
-    @IBOutlet weak var searchTypeInput: UISegmentedControl!
+    @IBOutlet weak var serviceInput: UISegmentedControl!
+    
     
     // var to denote if the current location is being used
     private var currentLocationUse = 0
@@ -99,17 +100,28 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     /**
      Purpose: To determine which rating service to use, Google (default) or Yelp
      
-     Parameter: UISwitch: the switch's position determines which service is used
+     Parameter: UISegmentedControll: the selected segment determines which service is used. Default is Google 
      */
-    @IBAction func serviceChange(_ sender: UISwitch) {
-        // if the switch is on, then use the Yelp service, otherwise use Google
-        if reviewServiceInput.isOn {
-            service = "Yelp"
-        }
-        else {
+    @IBAction func serviceSelector(_ sender: UISegmentedControl) {
+        switch serviceInput.selectedSegmentIndex {
+        case 0:
             service = "Google"
+        case 1:
+            service = "Yelp"
+        default:
+            break
         }
     }
+    
+//    @IBAction func serviceChange(_ sender: UISwitch) {
+//        // if the switch is on, then use the Yelp service, otherwise use Google
+//        if reviewServiceInput.isOn {
+//            service = "Yelp"
+//        }
+//        else {
+//            service = "Google"
+//        }
+//    }
     
     /**
      Purpose: To set the type of search for the API's.
@@ -245,6 +257,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // set numeric keypad with decimal for travel distance input
         travelDistanceInput.keyboardType = UIKeyboardType.decimalPad
         
+        // set default distance for users
+        travelDistanceInput.text = "1"
+        
         //** init UIPickerView to list many types of restaurants
 //        let pickerView = UIPickerView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 220))
 //        pickerView.delegate = self
@@ -260,7 +275,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         travelDistanceInput.addDoneButtonOnKeyboard()
         
         // init right bar button. When pressed exec goToNextPage func
-        let rightBarButton = UIBarButtonItem(title: "Find", style: .plain, target: self, action: #selector(goToNextPage))
+        let rightBarButton = UIBarButtonItem(title: "Search", style: .plain, target: self, action: #selector(goToNextPage))
         
         // add to navigation bar
         self.navigationItem.rightBarButtonItem = rightBarButton
@@ -275,9 +290,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             performSegue(withIdentifier: "toResults", sender: self)
         }
         // else display alert to user notifying them to fill out both fields
-        else if locationInput.text == "" || travelDistanceInput.text == "" {
+        else if locationInput.text! == "" || travelDistanceInput.text! == "" { // ||  Float(travelDistanceInput.text!)! <= 0.0 {
             // init alert
-            let alert = UIAlertController(title: "Input Error", message: "Please specify a location and search radius.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Input Error", message: "Please specify a location and a valid search radius.", preferredStyle: .alert)
             
             // add close option. Selecting this option will call openGoogleMaps
             alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
