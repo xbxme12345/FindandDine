@@ -17,8 +17,11 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var ftAddress: UILabel!
     @IBOutlet weak var ftMeal: UILabel!
     @IBOutlet weak var ftDay: UILabel!
+    @IBOutlet weak var ftLink: UILabel!
     
     @IBOutlet weak var mapView: MKMapView!
+    
+    
     
     //local variables for receiving data from tableView VC
     var location = String()
@@ -36,6 +39,7 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         
         self.mapView.mapType = MKMapType.standard
         self.mapView.showsUserLocation = true
+        //self.mapView.center = mapView.userLocation.coordinate
         
         let annotation = MKPointAnnotation()
         
@@ -48,6 +52,13 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
             annotation.title = "\(self.ftName)"
             annotation.subtitle = "\(self.location)"
             annotation.coordinate = CLLocationCoordinate2D(latitude: lat!, longitude: lon!)
+            
+            let latDelta: CLLocationDegrees = 0.05
+            let lonDelta: CLLocationDegrees = 0.05
+            let span: MKCoordinateSpan = MKCoordinateSpanMake(latDelta, lonDelta)
+            let location: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: lat!, longitude: lon!)
+            let region: MKCoordinateRegion = MKCoordinateRegionMake(location, span)
+            self.mapView.setRegion(region, animated: true)
             self.mapView.addAnnotation(annotation)
         }
         //self.mapView.removeAnnotations(self.mapView.annotations)

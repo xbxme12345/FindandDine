@@ -11,31 +11,20 @@ import UIKit
 import GoogleMaps
 import SQLite3
 
-//Main Struct
-struct ftJSON: Codable {
-    let html_attributions = [String:String]()
-    let results: [ftResult]?
-    let status: String
-}
-//Supplementary struct
-struct ftResult: Codable {
-    let location: String
-    let mealValue: String
-    let dayValue: String
-    let ftName: String
-}
 
 struct Food_Truck {
     var meal: String
     var location: String
     var dayOfWeek: String
     var foodTruck: String
+    var ftLink: String
     
     init(_ dictionary: [String: Any]) {
         self.meal = dictionary["Meal"] as? String ?? ""
         self.location = dictionary["Location"] as? String ?? ""
         self.dayOfWeek = dictionary["DayOfWeek"] as? String ?? ""
         self.foodTruck = dictionary["FoodTruck"] as? String ?? ""
+        self.ftLink = dictionary["Link"] as? String ?? ""
     }
 }
 
@@ -47,6 +36,15 @@ struct ftInfo {
     let location: String
     let dayOfWeek: String
     let foodTruckName: String
+    let ftLink: String
+    
+    init(meal: String, location: String, dayOfWeek: String, foodTruckName: String, ftLink: String) {
+        self.meal = meal
+        self.location = location
+        self.dayOfWeek = dayOfWeek
+        self.foodTruckName = foodTruckName
+        self.ftLink = ftLink
+    }
 }
 
 struct AllFTAddress {
@@ -67,8 +65,12 @@ struct distanceLoc {
     }
 }
 
-struct distanceJSON: Codable {
-    var distance: String
+struct distanceJSON{
+    var distance: Int
+    
+    init(distance: Int) {
+        self.distance = distance
+    }
 }
 
 //Global Variables to be used on other VC
@@ -102,12 +104,14 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     var closeByFTAddress = Set<String>()
     
     //Arrays used to store distance between origin and destination
-    var distanceText = [String]()
     var distanceDouble = [Double]()
     var closeDistStore = [Double]()
     
     //Init location manager
     private let locationManager = CLLocationManager()
+    
+    //Inititalize activity indicator
+    let activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView();
     
     /*
      Purpose: Determines the number of sections
@@ -189,7 +193,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/7ab6645d4b8049975b67e29883eb0bb5176575de/foodtruck.json") else {return}
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/6f9fb1c0744f9b1913831782b194a1280789b713/foodtruck.json") else {return}
         
         //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -225,19 +229,9 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             //Input array to calculate distance between all food truck addresses
             self.getDistLoc(inputArray: allFTAddressArr)
             
-            //Converting the travel distance from miles to kilometer and storing as a double
+            //Converting the travel distance from miles to meter and storing as a double
             let travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
             print("travel distance: ", travelDistKM)
-            
-            //Convert all distance calculated and convert to double
-            //Append all resulting double values to distanceDouble array
-            for val in self.distanceText {
-                let result = String(val.characters.dropLast(2))
-                let result2 = result.trimmingCharacters(in: .whitespacesAndNewlines)
-                let result3 = result2.replacingOccurrences(of: ",", with: "")
-                let result4 = NSString(string: result3).doubleValue
-                self.distanceDouble.append(result4)
-            }
             
             //Compare all distance to user inputted travel distance
             //distance <= user input travel distance
@@ -245,6 +239,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 if(i <= travelDistKM) {
                     //Stores the distance that are <= user input travel distance
                     self.closeDistStore.append(i)
+                    print(i)
                 } else {
                     //Skip if distance > user input travel distance
                 }
@@ -271,20 +266,10 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
      */
     func getDistance(distance: Double) -> Double {
         // formula for converting miles to meters
-        let distanceInMeters = distance * 1.60934
+        let distanceInMeters = distance * 1609.34
         
         // return distance in meters
         return distanceInMeters
-    }
-    
-    /*
-     Purpose: Change distance from string to double
-     
-     Return: Returns distance as double
-    */
-    func convertDistDouble(distance: Double) -> Double {
-        let distanceInKM = distance * 1.0
-        return distanceInKM
     }
     
     /*
@@ -293,7 +278,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     func getFoodTruckInfo(address: Set<String>){
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/7ab6645d4b8049975b67e29883eb0bb5176575de/foodtruck.json") else {return}
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/6f9fb1c0744f9b1913831782b194a1280789b713/foodtruck.json") else {return}
         
         //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -313,8 +298,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                     if address.contains(elem["Location"] as! String) {
                         if self.typeOfMealValue.contains(elem["Meal"] as! String) {
                             if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
-                                //print(elem["FoodTruck"], " at ", elem["Location"], " for ", elem["Meal"])
-                                foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as! String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String))
+                                foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as! String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String, ftLink: elem["Link"] as! String))
                             }
                         }
                     }
@@ -345,25 +329,33 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             
             guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else { return }
             
-            do {
-                let base_url = try! Data(contentsOf: url)
-                let jsonResponse = try! JSONSerialization.jsonObject(with: base_url, options: []) as! NSDictionary
-                let json1 = jsonResponse["rows"] as! NSArray
-                let json2 = json1[0] as! NSDictionary
-                let json3 = json2["elements"] as! NSArray
-                let dic = json3[0] as! NSDictionary
-                
-                let distance = dic["distance"] as! NSDictionary
-                if let distanceTxt = distance["text"] as? String {
-                    self.distanceText.append(distanceTxt)
-                }
-                
-            } catch {
-                print(error.localizedDescription)
-            }
+            let base_url = try! Data(contentsOf: url)
+            let jsonResponse = try! JSONSerialization.jsonObject(with: base_url, options: []) as! NSDictionary
             
+            let rows = jsonResponse["rows"] as! NSArray
+            let rows2 = rows[0] as! NSDictionary
+            let elements = rows2["elements"] as! NSArray
+            let elements2 = elements[0] as! NSDictionary
+            let distance = elements2["distance"] as! NSDictionary
+            if let distanceVal = distance["value"] as? Double {
+                self.distanceDouble.append(distanceVal)
+            }
         }
-
+    }
+    
+    func startLoading() {
+        activityIndicator.center = self.view.center
+        activityIndicator.hidesWhenStopped = true
+        //activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorView.gray
+        view.addSubview(activityIndicator)
+        
+        activityIndicator.startAnimating()
+        UIApplication.shared.beginIgnoringInteractionEvents()
+    }
+    
+    func stopLoading() {
+        activityIndicator.stopAnimating()
+        UIApplication.shared.endIgnoringInteractionEvents()
     }
 }
 

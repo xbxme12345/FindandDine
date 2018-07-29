@@ -17,6 +17,10 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     @IBOutlet weak var showMeal: UIButton!
     @IBOutlet weak var daySelection: UIButton!
     
+    
+    @IBOutlet weak var displayMeal: UILabel!
+    @IBOutlet weak var displayDay: UILabel!
+    
     var placesClient: GMSPlacesClient!
     
     var currentLocationUse = 0
@@ -75,6 +79,7 @@ class ftViewController: UIViewController, TCPickerViewOutput {
                 self.typeOfMeal.append(mealValue(meal: String(describing: meal)).meal);
             }
             print("Chose meal: ", self.typeOfMeal)
+            self.displayMeal.text = "Chosen: \(self.typeOfMeal)"
         }
         picker.show()
     }
@@ -114,6 +119,7 @@ class ftViewController: UIViewController, TCPickerViewOutput {
                 self.dayOfWeekVal.append(dayOfWeekValue(dayOfWeek: String(describing: day)).dayOfWeek);
             }
             print("Chose day of the week: ", self.dayOfWeekVal)
+            self.displayDay.text = "Chosen: \(self.dayOfWeekVal)"
         }
         picker.show()
     }
