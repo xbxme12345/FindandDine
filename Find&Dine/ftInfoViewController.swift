@@ -17,7 +17,6 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var ftAddress: UILabel!
     @IBOutlet weak var ftMeal: UILabel!
     @IBOutlet weak var ftDay: UILabel!
-    @IBOutlet weak var ftLink: UILabel!
     
     @IBOutlet weak var mapView: MKMapView!
     
@@ -28,6 +27,7 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
     var meal = String()
     var dayOfWeek = String()
     var ftName = String()
+    var link = String()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +63,10 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         }
         //self.mapView.removeAnnotations(self.mapView.annotations)
         print(ftName, " ", location, " ", meal, " ", dayOfWeek)
+    }
+    
+    
+    @IBAction func openFTLink(_ sender: Any) {
     }
     
     @IBAction func openMap(_ sender: Any) {

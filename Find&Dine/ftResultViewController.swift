@@ -81,6 +81,7 @@ var name = ""
 var address = ""
 var meal = ""
 var day = ""
+var link = ""
 
 class ftResultViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -147,6 +148,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         cell.textLabel?.text = foodTruck.foodTruckName
         cell.detailTextLabel?.text = "\(foodTruck.location)    \(foodTruck.dayOfWeek) \(foodTruck.meal)"
         
+        stopLoading()
         return cell
     }
     
@@ -164,6 +166,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         location = foodTruck.location
         meal = foodTruck.meal
         day = foodTruck.dayOfWeek
+        link = foodTruck.ftLink
         
         performSegue(withIdentifier: "segue", sender: cell)
     }
@@ -177,19 +180,16 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         ftVC.location = location
         ftVC.meal = meal
         ftVC.dayOfWeek = day
+        ftVC.link = link
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        startLoading()
+        
         //Set location manager delegate and request for location use if not authorized already
         locationManager.requestWhenInUseAuthorization()
-    
-        //Prints out values passed through segue from ftViewController
-        print("Location: ", location)
-        print("Travel Distance: ", travelDistance)
-        print("Type of Meal: ", typeOfMealValue)
-        print("Day of the Week: ", dayOfWeekValue)
     
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
@@ -239,7 +239,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 if(i <= travelDistKM) {
                     //Stores the distance that are <= user input travel distance
                     self.closeDistStore.append(i)
-                    print(i)
                 } else {
                     //Skip if distance > user input travel distance
                 }
@@ -346,7 +345,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     func startLoading() {
         activityIndicator.center = self.view.center
         activityIndicator.hidesWhenStopped = true
-        //activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorView.gray
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray;
         view.addSubview(activityIndicator)
         
         activityIndicator.startAnimating()
