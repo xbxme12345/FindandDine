@@ -114,10 +114,6 @@
                                     <action selector="maxPriceChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="SU1-id-QHF"/>
                                 </connections>
                             </segmentedControl>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GXF-Qu-bTI">
-                                <rect key="frame" x="275" y="249" width="85" height="30"/>
-                                <state key="normal" title="Suggestions"/>
-                            </button>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Wnw-Vn-hET">
                                 <rect key="frame" x="129" y="412" width="117" height="29"/>
                                 <segments>
@@ -151,7 +147,6 @@
                             <constraint firstItem="Efa-pu-DgV" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="UDJ-VM-ZQD"/>
                             <constraint firstItem="iai-yJ-uEo" firstAttribute="top" secondItem="7FM-XD-SYT" secondAttribute="bottom" constant="10" id="VXr-K2-8tW"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dgS-xB-Oca" secondAttribute="trailing" constant="15" id="WYM-OB-MfB"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="GXF-Qu-bTI" secondAttribute="trailing" constant="15" id="YAp-0H-AW9"/>
                             <constraint firstItem="bxw-a0-4Kr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="ZVr-h7-oCR"/>
                             <constraint firstItem="yYH-AI-wqL" firstAttribute="top" secondItem="bxw-a0-4Kr" secondAttribute="bottom" constant="9" id="bTY-NH-Sf8"/>
                             <constraint firstItem="jej-Ol-x4a" firstAttribute="top" secondItem="dgS-xB-Oca" secondAttribute="bottom" constant="20" id="bZT-Z6-Ec7"/>
@@ -170,7 +165,6 @@
                             <constraint firstItem="LHc-TD-Ivw" firstAttribute="top" secondItem="RHe-ps-8oX" secondAttribute="bottom" constant="8" id="vHE-bB-J0U"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="yYH-AI-wqL" secondAttribute="trailing" constant="15" id="xJl-Fy-ZUw"/>
                             <constraint firstItem="dgS-xB-Oca" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="yPV-rC-cMH"/>
-                            <constraint firstItem="Efa-pu-DgV" firstAttribute="top" secondItem="GXF-Qu-bTI" secondAttribute="bottom" constant="4" id="zaA-ML-M5b"/>
                             <constraint firstItem="zmw-Q2-QNC" firstAttribute="top" secondItem="LHc-TD-Ivw" secondAttribute="bottom" constant="20" id="ziz-46-YJk"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -191,7 +185,6 @@
                         <outlet property="ratingOutput" destination="qaU-Sn-ZQX" id="EiI-FL-QWk"/>
                         <outlet property="searchKeywordsInput" destination="Efa-pu-DgV" id="UZ2-Rn-eQa"/>
                         <outlet property="serviceInput" destination="Wnw-Vn-hET" id="T18-u7-9Oj"/>
-                        <outlet property="suggestionButton" destination="GXF-Qu-bTI" id="YdF-Ld-cD9"/>
                         <outlet property="travelDistanceInput" destination="dgS-xB-Oca" id="iPr-9V-Rpn"/>
                     </connections>
                 </viewController>

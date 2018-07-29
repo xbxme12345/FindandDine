@@ -9,7 +9,7 @@
 import UIKit
 import GooglePlaces
 
-class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
+class ViewController: UIViewController, CLLocationManagerDelegate {
     
     // init location manager
     let locationManager = CLLocationManager()
@@ -22,15 +22,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     @IBOutlet weak var travelDistanceInput: UITextField!
     @IBOutlet weak var searchKeywordsInput: UITextField!
     @IBOutlet weak var ratingInput: UISlider!
-    @IBOutlet weak var suggestionButton: UIButton!
     @IBOutlet weak var minPriceInput: UISegmentedControl!
     @IBOutlet weak var maxPriceInput: UISegmentedControl!
     @IBOutlet weak var ratingOutput: UILabel!
     @IBOutlet weak var serviceInput: UISegmentedControl!
-    
-    
-    // var to denote if the current location is being used
-    private var currentLocationUse = 0
     
     // variables used for storing values from user. Each has a default value and is reflected in the UI
     private var rating = 3.0
@@ -38,48 +33,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     private var type = "restaurant"
     private var minPrice = 1
     private var maxPrice = 2
-    
-    //**** UIPickerView for restaurants and foods
-    // separate lists for food and reataurants
-    private let restaurant = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
-    
-    // set default list
-    private var pickerData = ["American", "Cajun", "Chinese", "French", "Filipino", "Greek", "Indian", "Indonesian", "Italian", "Japanese", "Jewish", "Korean", "Malaysian", "Mexican", "Polish" , "Portugese", "Punjabi", "Russian", "Thai", "Turkish"]
-    // africa, asian, bbq, bakery, bar, Brasserie, bistro, brazilian, breakfast, boba, buffet, burger, cafe, club, coffee, deli, diner, German, latin american, mediterranean, nightclub, osteria, pizza, seafood, steakhouse, spanish, sushi, Vegetarian, Vegan, Vietnamese
-    /**
-     Purpose: To define how many columns show up in the UIPickerView
-     
-     Return: 1. Only 1 column of options will be visible
-     */
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    /**
-     Purpose: To return the number of elements in the array
-     
-     Return: pickerData.count. denotes how many rows to make for the UIPickerView
-     */
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return pickerData.count
-    }
-    
-    /**
-     Purpose: To return the data stored at row
-     
-     Return: pickerData[row]. returns stored data at element row
-     */
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return pickerData[row]
-    }
-    
-    /**
-     Purpose: To set the display to match the data that was selected
-     */
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        searchKeywordsInput.text = pickerData[row]
-    }
-    //**** UIPickerView for restaurants and foods ^^^
     
     /**
      Purpose: Retrieve value of the rating slider if it is moved.
@@ -98,7 +51,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     /**
-     Purpose: To determine which rating service to use, Google (default) or Yelp
+     Purpose: Determine which rating service to use, Google (default) or Yelp
      
      Parameter: UISegmentedControll: the selected segment determines which service is used. Default is Google 
      */
@@ -112,40 +65,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             break
         }
     }
-    
-//    @IBAction func serviceChange(_ sender: UISwitch) {
-//        // if the switch is on, then use the Yelp service, otherwise use Google
-//        if reviewServiceInput.isOn {
-//            service = "Yelp"
-//        }
-//        else {
-//            service = "Google"
-//        }
-//    }
-    
-    /**
-     Purpose: To set the type of search for the API's.
-     
-     Parameter: sender: UISegmentedControl: input from this button determines the output
-     */
-//    @IBAction func SearchTypeChange(_ sender: UISegmentedControl) {
-//        switch searchTypeInput.selectedSegmentIndex {
-//        // if set to restaurant, then clear text box and change placeholder text to show examples to user
-//        case 0:
-//            type = "restaurant"
-//            pickerData = restaurant
-//            searchKeywordsInput.text = ""
-//            searchKeywordsInput.placeholder = "Mexican, Chinese, Italian..."
-//        // if set to food, then clear text box and change placeholder text to show examples to user
-//        case 1:
-//            type = "food"
-//            pickerData = food
-//            searchKeywordsInput.text = ""
-//            searchKeywordsInput.placeholder = "Pizza, Burritos, Ramen..."
-//        default:
-//            break
-//        }
-//    }
     
     /**
      Purpose: To get the minPrice set by the user
@@ -214,7 +133,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         let resultsViewController = segue.destination as! resultsViewController
         
         // assign values from this VC to resultsVC
-        resultsViewController.locationFlag = currentLocationUse
         resultsViewController.location = locationInput.text!
         resultsViewController.travelDistance = travelDistanceInput.text!
         resultsViewController.keyword = searchKeywordsInput.text!
@@ -222,14 +140,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         resultsViewController.minPrice = minPrice
         resultsViewController.maxPrice = maxPrice
         resultsViewController.minRating = Float(rating)
-//        resultsViewController.searchType = type
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // set placeholder text for locationInput to notify user that the current address is going to be used
-        locationInput.placeholder = "loading current address..."
+        locationInput.placeholder = "Loading current address..."
         
         // set places sdk client
         placesClient = GMSPlacesClient.shared()
@@ -260,19 +177,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // set default distance for users
         travelDistanceInput.text = "1"
         
-        //** init UIPickerView to list many types of restaurants
-//        let pickerView = UIPickerView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 220))
-//        pickerView.delegate = self
-//        pickerView.dataSource = self
-//        searchKeywordsInput.inputView = pickerView
-        //**
-        
-        // disabled because idk how to implement thing to block users from putting in toenail
-        searchKeywordsInput.addDoneButtonOnKeyboard()
-        
         // add Done buttons to keyboard tool bar. Used to dismiss keyboard when user is done with input
         locationInput.addDoneButtonOnKeyboard()
         travelDistanceInput.addDoneButtonOnKeyboard()
+        searchKeywordsInput.addDoneButtonOnKeyboard()
         
         // init right bar button. When pressed exec goToNextPage func
         let rightBarButton = UIBarButtonItem(title: "Search", style: .plain, target: self, action: #selector(goToNextPage))
@@ -290,7 +198,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             performSegue(withIdentifier: "toResults", sender: self)
         }
         // else display alert to user notifying them to fill out both fields
-        else if locationInput.text! == "" || travelDistanceInput.text! == "" { // ||  Float(travelDistanceInput.text!)! <= 0.0 {
+        else if locationInput.text! == "" || travelDistanceInput.text! == "" { 
             // init alert
             let alert = UIAlertController(title: "Input Error", message: "Please specify a location and a valid search radius.", preferredStyle: .alert)
             
@@ -303,36 +211,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     /**
-     Purpose: Retrieve address of current location
-     
-     Parameter: sender: UIButton, when the button is pressed, execute this function
- 
-    @IBAction func getCurrentPlace(_ sender: UIButton) {
-        // get the current location
-        placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
-            // if there is an error then output the error
-            if let error = error {
-                print("Pick Place error: \(error.localizedDescription)")
-                return
-            }
-            
-            // if there is info about this place then retrieve it and then set the location field to the formatted address of the current location
-            if let placeLikelihoodList = placeLikelihoodList {
-                let place = placeLikelihoodList.likelihoods.first?.place
-                if let place = place {
-                    self.locationInput.text = place.formattedAddress?.components(separatedBy: ", ").joined(separator: "\n")
-                }
-            }
-        })
-        
-        // flag for use in resultsViewController
-        currentLocationUse = 1
-    }*/
-    
-    /**
      Purpose: Retrieve address of current location and set locationInput to the address
      */
-    
     func setCurrentLocation() {
         // get the current location
         placesClient.currentPlace(callback: { (placeLikelihoodList, error) -> Void in
@@ -350,9 +230,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                 }
             }
         })
-        
-        // flag for use in resultsViewController
-        currentLocationUse = 1
     }
 }
 
