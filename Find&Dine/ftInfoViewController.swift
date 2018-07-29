@@ -67,6 +67,13 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
     
     
     @IBAction func openFTLink(_ sender: Any) {
+        openUrl(urlStr: "\(self.link)")
+    }
+    
+    func openUrl(urlStr: String) {
+        if let url = NSURL(string: urlStr) {
+            UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+        }
     }
     
     @IBAction func openMap(_ sender: Any) {
