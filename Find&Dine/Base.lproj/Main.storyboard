@@ -176,7 +176,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" title="Find &amp; Dine" id="PO0-6W-Jya">
-                        <barButtonItem key="rightBarButtonItem" title="Find" id="921-fi-kPX">
+                        <barButtonItem key="rightBarButtonItem" title="Search" id="921-fi-kPX">
                             <connections>
                                 <action selector="Find:" destination="BYZ-38-t0r" id="zNT-Wc-p6Q"/>
                                 <segue destination="k39-cC-Uuh" kind="show" identifier="toResults" id="N2M-bT-eRc"/>
@@ -481,7 +481,7 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Food Truck" id="WMD-Z2-gQY"/>
                     <navigationItem key="navigationItem" title="Find &amp; Dine" id="cJI-xm-wuh">
-                        <barButtonItem key="rightBarButtonItem" title="Find" id="OYe-qI-qy1">
+                        <barButtonItem key="rightBarButtonItem" title="Search" id="OYe-qI-qy1">
                             <connections>
                                 <segue destination="RTg-Il-NCs" kind="show" identifier="foodTruckList" id="06z-7Z-4Gf"/>
                             </connections>

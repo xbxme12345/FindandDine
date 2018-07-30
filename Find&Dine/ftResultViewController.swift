@@ -9,8 +9,6 @@
 import Foundation
 import UIKit
 import GoogleMaps
-import SQLite3
-
 
 struct Food_Truck {
     var meal: String
@@ -139,11 +137,12 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     */
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "cell")
-        
+
         //Enable scrolling for table view
         tableViewFoodTruck.isScrollEnabled = true;
         
         let foodTruck: ftInfo
+        
         foodTruck = foodTruckList[indexPath.row]
         cell.textLabel?.text = foodTruck.foodTruckName
         cell.detailTextLabel?.text = "\(foodTruck.location)    \(foodTruck.dayOfWeek) \(foodTruck.meal)"
@@ -290,8 +289,11 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             //Parse through json file using close by address, user selected type of meal and day of the week
             //Append all results/food truck info to array
             do {
+                
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
                 guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
+                
+                foodTruckList.removeAll()
                 
                 for elem in jsonArray {
                     if address.contains(elem["Location"] as! String) {
