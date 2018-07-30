@@ -421,7 +421,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Chosen: (Meal)" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="abS-za-3GQ">
-                                <rect key="frame" x="16" y="327" width="343" height="47"/>
+                                <rect key="frame" x="16" y="327.33333333333331" width="343" height="47"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="47" id="Kxi-N1-5e6"/>
                                 </constraints>
@@ -511,7 +511,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="foodTruckCell" textLabel="KLv-Mg-dIV" detailTextLabel="yYT-vy-G2b" rowHeight="67" style="IBUITableViewCellStyleSubtitle" id="hVc-Qz-SLQ">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="foodTruckCell" textLabel="KLv-Mg-dIV" detailTextLabel="yYT-vy-G2b" rowHeight="67" style="IBUITableViewCellStyleSubtitle" id="hVc-Qz-SLQ">
                                         <rect key="frame" x="0.0" y="28" width="375" height="67"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="hVc-Qz-SLQ" id="W8X-mT-Ivc">

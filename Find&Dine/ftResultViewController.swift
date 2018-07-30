@@ -10,21 +10,29 @@ import Foundation
 import UIKit
 import GoogleMaps
 
-struct Food_Truck {
-    var meal: String
-    var location: String
-    var dayOfWeek: String
-    var foodTruck: String
-    var ftLink: String
-    
-    init(_ dictionary: [String: Any]) {
-        self.meal = dictionary["Meal"] as? String ?? ""
-        self.location = dictionary["Location"] as? String ?? ""
-        self.dayOfWeek = dictionary["DayOfWeek"] as? String ?? ""
-        self.foodTruck = dictionary["FoodTruck"] as? String ?? ""
-        self.ftLink = dictionary["Link"] as? String ?? ""
-    }
+//Structure for Distance Matrix API JSON
+struct JSON_Distance: Codable{
+    var destination_addresses: [String]!
+    var origin_addresses: [String]!
+    var rows: [Element]!
+    var status: String!
 }
+
+struct Element: Codable {
+    var elements: [internalJSON]!
+}
+
+struct internalJSON: Codable {
+    var distance: DistanceOrTime!
+    var duration: DistanceOrTime!
+    var status: String!
+}
+
+struct DistanceOrTime: Codable {
+    var text: String
+    var value: Double
+}
+/*-----------------------------------------*/
 
 /**
  Purpose: defines the ftInfo type. This is the info stored for each resturant
@@ -53,24 +61,6 @@ struct AllFTAddress {
     }
 }
 
-struct distanceLoc {
-    var ftLoc: String
-    var ftDistance: String
-    
-    init(ftLoc: String, ftDistance: String) {
-        self.ftLoc = ftLoc
-        self.ftDistance = ftDistance
-    }
-}
-
-struct distanceJSON{
-    var distance: Int
-    
-    init(distance: Int) {
-        self.distance = distance
-    }
-}
-
 //Global Variables to be used on other VC
 //Store the food truck to display in table view UI
 var foodTruckList = [ftInfo]()
@@ -96,15 +86,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     //Array to store all distinct addresses in JSON file
     var allFTAddress = Set<String>()
     
-    //List to store all addresses along with the distance to current location
-    var tmpDistAddress = [distanceLoc]()
-    
-    //Array to store food truck addresses which are within travel distance input of the user's current location
-    var closeByFTAddress = Set<String>()
-    
-    //Arrays used to store distance between origin and destination
-    var distanceDouble = [Double]()
-    var closeDistStore = [Double]()
+    var travelDistKM: Double!
     
     //Init location manager
     private let locationManager = CLLocationManager()
@@ -137,7 +119,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     */
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "cell")
-
         //Enable scrolling for table view
         tableViewFoodTruck.isScrollEnabled = true;
         
@@ -192,7 +173,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/6f9fb1c0744f9b1913831782b194a1280789b713/foodtruck.json") else {return}
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/40071846cf47e23884fb248339058ce9c8e66f43/foodtruck.json") else {return}
         
         //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -222,61 +203,32 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 print("Error ", parsingError)
             }
             
-            //Assign array to allFTAddressArr to be passed into a function
-            let allFTAddressArr = Array(self.allFTAddress)
+            self.travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
             
-            //Input array to calculate distance between all food truck addresses
-            self.getDistLoc(inputArray: allFTAddressArr)
-            
-            //Converting the travel distance from miles to meter and storing as a double
-            let travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
-            print("travel distance: ", travelDistKM)
-            
-            //Compare all distance to user inputted travel distance
-            //distance <= user input travel distance
-            for i in self.distanceDouble {
-                if(i <= travelDistKM) {
-                    //Stores the distance that are <= user input travel distance
-                    self.closeDistStore.append(i)
-                } else {
-                    //Skip if distance > user input travel distance
-                }
-            }
-            
-            //Get the index of the stored distance in closeDistStore array from distanceDouble array of all addresses
-            //Take the index value to locate the address and append to string set
-            for i in self.closeDistStore {
-                let val = self.distanceDouble.index(of: i)
-                let locIndex = allFTAddressArr[val!]
-                self.closeByFTAddress.insert(locIndex)
-            }
-            
-            //Calls function to retrieve food truck information
-            self.getFoodTruckInfo(address: self.closeByFTAddress)
+            self.getFoodTruckInfo()
         }
         task.resume()
+        
+        foodTruckList.removeAll()
     }
     
     /**
      Purpose: Convert distance from miles to meters
      
-     Return: return converted distance
+     Return: Returns converted distance
      */
     func getDistance(distance: Double) -> Double {
-        // formula for converting miles to meters
-        let distanceInMeters = distance * 1609.34
-        
-        // return distance in meters
-        return distanceInMeters
+        //return distance in meters
+        return (distance * 1609.34)
     }
     
     /*
      Purpose: Get food truck info based upon address that are close to user's location
     */
-    func getFoodTruckInfo(address: Set<String>){
+    func getFoodTruckInfo() {
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/6f9fb1c0744f9b1913831782b194a1280789b713/foodtruck.json") else {return}
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/40071846cf47e23884fb248339058ce9c8e66f43/foodtruck.json") else {return}
         
         //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -293,13 +245,14 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
                 guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
                 
-                foodTruckList.removeAll()
-                
                 for elem in jsonArray {
-                    if address.contains(elem["Location"] as! String) {
-                        if self.typeOfMealValue.contains(elem["Meal"] as! String) {
-                            if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
-                                foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as! String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String, ftLink: elem["Link"] as! String))
+                    if self.typeOfMealValue.contains(elem["Meal"] as! String) {
+                        if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
+                            let dist = self.getDistLoc(addString: "\(elem["Location"])")
+                            if(dist <= self.travelDistKM) {
+                                foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as!String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String, ftLink: elem["Link"] as! String))
+                            } else {
+                                //Skip
                             }
                         }
                     }
@@ -313,38 +266,29 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 print("Error: ", parsingError)
             }
         }
-        
         task.resume()
     }
     
     /*
      Purpose: Calculate the distance between two address
-    */
-    func getDistLoc(inputArray: Array<Any>) {
+     */
+    func getDistLoc(addString: String) -> Double {
+        //URL string that returns the JSON object for parsing
+        let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=\(self.location)&destinations=\(addString)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
         
-        let allAddressArr = inputArray
+        guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else {return 0.0}
         
-        for address in allAddressArr {
-            // URL string that returns the JSON object for parsing
-            let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=\(self.location)&destinations=\(address)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
-            
-            guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else { return }
-            
-            let base_url = try! Data(contentsOf: url)
-            let jsonResponse = try! JSONSerialization.jsonObject(with: base_url, options: []) as! NSDictionary
-            
-            let rows = jsonResponse["rows"] as! NSArray
-            let rows2 = rows[0] as! NSDictionary
-            let elements = rows2["elements"] as! NSArray
-            let elements2 = elements[0] as! NSDictionary
-            let distance = elements2["distance"] as! NSDictionary
-            if let distanceVal = distance["value"] as? Double {
-                self.distanceDouble.append(distanceVal)
-                print(distanceVal)
-            }
-        }
+        let base_url = try! Data(contentsOf: url)
+        
+        let distData = try! JSONDecoder().decode(JSON_Distance.self, from: base_url)
+        let distVal = distData.rows[0].elements[0].distance.value
+
+        return distVal
     }
     
+    /*
+     Purpose: Starts the activity indicator
+    */
     func startLoading() {
         activityIndicator.center = self.view.center
         activityIndicator.hidesWhenStopped = true
@@ -355,6 +299,9 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         UIApplication.shared.beginIgnoringInteractionEvents()
     }
     
+    /*
+     Purpose: Stops the activity indicator
+    */
     func stopLoading() {
         activityIndicator.stopAnimating()
         UIApplication.shared.endIgnoringInteractionEvents()
