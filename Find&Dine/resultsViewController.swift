@@ -176,6 +176,12 @@ class resultsViewController: UIViewController {
             travelDistMeters = getDistance(distance: Double(travelDistance)!)
         }
         
+        // if using Yelp and inputted distance in meters is more than 40k, set to 40k.
+        // yelp's distance limit is 40k meters (~25 miles)
+        if travelDistMeters > 40000 && service == "Yelp" {
+            travelDistMeters = 40000
+        }
+        
         // disable button
         displayPrevious.isEnabled = false
         
@@ -295,7 +301,6 @@ class resultsViewController: UIViewController {
                 num+=1
             }
         }
-        print("search type: ", searchtype)
         
         // build URL string for API request
         let urlString = "https://api.yelp.com/v3/businesses/search?term=\(searchtype)&latitude=\(lat)&longitude=\(lng)&price=\(priceString)&radius=\(Int(radius))&categories=\(word)"
@@ -315,7 +320,11 @@ class resultsViewController: UIViewController {
             if error != nil {
                 print(error!.localizedDescription)
             }
-            
+            // output JSON response
+//            if let httpResponse = response as? HTTPURLResponse {
+//                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+//                print(dataString!)
+//            }
             guard let data = data else { return }
             
             // decode JSON and parse info into yelpRestList

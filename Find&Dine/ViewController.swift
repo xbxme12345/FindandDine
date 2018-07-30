@@ -195,7 +195,19 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @objc func goToNextPage() {
         // if both location and distance are specified, then send all info to resultsVC
         if locationInput.text != "" && travelDistanceInput.text != "" {
-            performSegue(withIdentifier: "toResults", sender: self)
+            if service == "Yelp" && searchKeywordsInput.text! == "" {
+                // init alert
+                let alert = UIAlertController(title: "Input Error", message: "Please specify a keyword when using Yelp.", preferredStyle: .alert)
+                
+                // add close option. Selecting this option will call openGoogleMaps
+                alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
+                
+                // display alert to user
+                self.present(alert, animated: true)
+            }
+            else {
+                performSegue(withIdentifier: "toResults", sender: self)
+            }
         }
         // else display alert to user notifying them to fill out both fields
         else if locationInput.text! == "" || travelDistanceInput.text! == "" { 
