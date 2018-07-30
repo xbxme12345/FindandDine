@@ -4,7 +4,6 @@
 //
 //  Created by Gregory Lee on 6/6/18.
 //  Copyright © 2018 WIT Senior Design. All rights reserved.
-//
 
 // import Google Maps and Google Places
 import GooglePlacePicker
@@ -31,10 +30,6 @@ struct infoResult: Codable {
 struct loc: Codable {
     let location: [String: Double]?
 }
-struct location: Codable {
-    let lat: Double
-    let lng: Double
-} //**** 
 
 /**
  Purpose: defines the RestInfo type. This is the info stored for each resturant
