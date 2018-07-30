@@ -6,9 +6,10 @@
 //  Copyright © 2018 WIT Senior Design. All rights reserved.
 //
 
-import UIKit
+// import Google Maps and Google Places
 import GooglePlacePicker
 import GoogleMaps
+import UIKit
 import Foundation
 
 /**
@@ -56,6 +57,7 @@ struct yelpJSON: Codable {
 struct rest: Codable {
     let name: String?
     let image_url: String?
+    let url: String?
     let rating: Float?
     let coordinates: coordYelp?
     let price: String?
@@ -80,6 +82,7 @@ struct yelpRestInfo {
     let lat: Double
     let lng: Double
     let imageURL: String
+    let siteURL: String
 }
 
 class resultsViewController: UIViewController {
@@ -97,9 +100,9 @@ class resultsViewController: UIViewController {
     @IBOutlet weak var placePrice: UILabel!
     @IBOutlet weak var restaurantImage: UIImageView!
     @IBOutlet weak var searchAgain: UIButton!
+    @IBOutlet weak var displayPrevious: UIButton!
     
     // local variables for receiving data from 1st VC
-    var locationFlag = Int()
     var location = String()
     var travelDistance = String()
     var keyword = String()
@@ -107,12 +110,16 @@ class resultsViewController: UIViewController {
     var minRating = Float()
     var minPrice = Int()
     var maxPrice = Int()
-//    var searchType = String()
+    
+    // variable used to store the URL used to get more info.
+    // When using Google, it will open safari and display info about the restaurant
+    // When using Yelp, it will open safari to the Yelp page for that restaurant
+    private var siteURL = String()
     
     // variable to store distance converted into meters
     private var travelDistMeters = Double()
     
-    // variables to store the location at which the search will occur
+    // variables to store the location at which the search will occur  // hardcode??
     private var originlatitude = Double()
     private var originlongitude = Double()
     
@@ -120,7 +127,7 @@ class resultsViewController: UIViewController {
     private var googleRestList = [googleRestInfo]()
     private var yelpRestList = [yelpRestInfo]()
     
-    // store random number calculated from RestList.count
+    // store random number calculated from length of RestLists
     private var randomNum = Int()
     
     // store random numbers to ensure that no duplicates are used
@@ -132,6 +139,10 @@ class resultsViewController: UIViewController {
     // used to determine if the JSON result contained data
     private var results = -1
     
+    // keep track of currently displayed restaurant
+    private var currentRandomIndex = 0
+    
+    // list of types of restaurants that the user could enter
     private var restList = ["american", "cajun", "chinese", "french", "filipino", "greek", "indian", "indonesian", "italian", "japanese", "jewish", "korean", "malaysian", "mexican", "polish" , "portugese", "punjabi", "russian", "thai", "turkish", "africa", "asian", "bbq", "bakery", "bar", "brasserie", "bistro", "brazilian", "breakfast", "boba", "buffet", "burger", "cafe", "club", "coffee", "deli", "diner", "german", "latin", "mediterranean", "nightclub", "osteria", "pizza", "seafood", "steakhouse", "spanish", "sushi", "vegetarian", "vegan", "vietnamese"]
     
     override func viewDidLoad() {
@@ -141,14 +152,38 @@ class resultsViewController: UIViewController {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         
-        // if Use Current Location button was pressed, then get the current location of the device and store those for use in the geocodeRequest function
-        //if locationFlag == 1 {
+        //init info button
+        let infoButton = UIButton(type: .infoDark)
+        
+        // define action when pressed
+        infoButton.addTarget(self, action: #selector(getRestInfo), for: .touchUpInside)
+        
+        // init infoButton as a UIBarButtonItem
+        let infoBarButtonItem = UIBarButtonItem(customView: infoButton)
+        
+        // add infoButton to NavigationBar
+        navigationItem.rightBarButtonItem = infoBarButtonItem
+        
+        // Use current location as the center for the search radius
         originlatitude = (locationManager.location?.coordinate.latitude)!
         originlongitude = (locationManager.location?.coordinate.longitude)!
-        // }
         
-        // convert distance from miles to meters
-        travelDistMeters = getDistance(distance: Double(travelDistance)!)
+        // limit user entered distance to 25 miles (Yelp limit) and convert it to meters
+        if Double(travelDistance)! > 25.0 {
+            travelDistMeters = getDistance(distance: 25.0)
+        }
+        else {
+            travelDistMeters = getDistance(distance: Double(travelDistance)!)
+        }
+        
+        // if using Yelp and inputted distance in meters is more than 40k, set to 40k.
+        // yelp's distance limit is 40k meters (~25 miles)
+        if travelDistMeters > 40000 && service == "Yelp" {
+            travelDistMeters = 40000
+        }
+        
+        // disable button
+        displayPrevious.isEnabled = false
         
         if service == "Google" {
             print("using Google")
@@ -180,7 +215,7 @@ class resultsViewController: UIViewController {
         else { //Yelp service
             print("using Yelp")
             
-            // retrieve list of restaurants from Yelp
+            // retrieve list of restaurants from Yelp API
             yelpGetRestaurants(lat: originlatitude, lng: originlongitude, radius: travelDistMeters, keyword: keyword, minPrice: minPrice , maxPrice: maxPrice, minRating: minRating)
             
             // wait for API call to return results
@@ -207,7 +242,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: To display an alert notifying the user that there are 0 results
+     Purpose: To display an alert notifying the user that there are 0 results and to return to the previous screen
      */
     func noResultsAlert() {
         // init alert
@@ -236,17 +271,17 @@ class resultsViewController: UIViewController {
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
-        // replace spaces in keyword with + for API call and set keyword to all lowercase and remove trailing whitespace
+        // set searchtype to food, set keyword to all lowercase and remove trailing whitespace
         var word = keyword
         var searchtype = "food"
         word = word.trimmingCharacters(in: .whitespaces)
         word = word.lowercased()
+        
         // if keyword is a restaurant, then set search to restaurant, otherwise use food
         if restList.contains(word) {
             searchtype = "restaurant"
         }
-        
-        // check or spaces in keyword string, replace them with + if present
+        // replace spaces in keyword with + for API call if found in string
         if word.contains(" ") {
             word = keyword.replacingOccurrences(of: " ", with: "+")
         }
@@ -266,14 +301,13 @@ class resultsViewController: UIViewController {
                 num+=1
             }
         }
-        print("search type: ", searchtype)
         
-        // build URL for API request
+        // build URL string for API request
         let urlString = "https://api.yelp.com/v3/businesses/search?term=\(searchtype)&latitude=\(lat)&longitude=\(lng)&price=\(priceString)&radius=\(Int(radius))&categories=\(word)"
         
         guard let url = URL(string: urlString) else { return }
         
-        // init URLRequest to add a GET method that supplies yelp with the API key
+        // init URLRequest to add a GET method that supplies Yelp API with the API key
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         let config = URLSessionConfiguration.default
@@ -286,13 +320,11 @@ class resultsViewController: UIViewController {
             if error != nil {
                 print(error!.localizedDescription)
             }
-            
             // output JSON response
 //            if let httpResponse = response as? HTTPURLResponse {
 //                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
 //                print(dataString!)
 //            }
-            
             guard let data = data else { return }
             
             // decode JSON and parse info into yelpRestList
@@ -301,26 +333,28 @@ class resultsViewController: UIViewController {
                 
                 // if results are returned by the API, then proceed with parse
                 if yelpRestResult.total != 0 {
+                    var temp: String // define string for address
                     // iterate through yelpRestInfo
                     for elem in yelpRestResult.businesses! {
-                        var temp: String
-                        // if there is no address stored for a restaurant, then store the following string in its place
-                        if elem.location!.display_address.count == 0 {
-                            temp = "No address listed for restaurant"
-                        }
-                        // if there is only 1 element in the array, that element will be stored for the address
-                        else if elem.location!.display_address.count == 1 {
-                            temp = elem.location!.display_address[0]!
-                        }
-                        // else: combine both entries of the address into 1 and store in yelpRestList
-                        else {
-                            temp = elem.location!.display_address[0]! + " " + elem.location!.display_address[1]!
-                        }
-                        
                         // if rating of restaurant is above minRating, then add to yelpRestList
+                        
                         if elem.rating! >= minRating {
                             self.results = 0
-                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!))
+                            
+                            // if there is no address stored for a restaurant, then store the following string in its place
+                            if elem.location!.display_address.count == 0 {
+                                temp = "No address listed for restaurant"
+                            }
+                                // if there is only 1 element in the array, that element will be stored for the address
+                            else if elem.location!.display_address.count == 1 {
+                                temp = elem.location!.display_address[0]!
+                            }
+                                // else: combine both entries of the address into 1 and store in yelpRestList
+                            else {
+                                temp = elem.location!.display_address[0]! + " " + elem.location!.display_address[1]!
+                            }
+                            
+                            self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!, siteURL: elem.url!))
                         }
                     }
                 }
@@ -342,13 +376,11 @@ class resultsViewController: UIViewController {
                                 addr: self.yelpRestList[self.randomNum].addr,
                                 rating: self.yelpRestList[self.randomNum].rating,
                                 price: self.yelpRestList[self.randomNum].price,
-                                imageURL: self.yelpRestList[self.randomNum].imageURL)
+                                imageURL: self.yelpRestList[self.randomNum].imageURL,
+                                siteURL: self.yelpRestList[self.randomNum].siteURL)
                 
                 // set coordinates of resturant
                 self.restPosCoord = CLLocationCoordinate2D(latitude: self.yelpRestList[self.randomNum].lat, longitude: self.yelpRestList[self.randomNum].lng)
-            }
-            else {
-                self.results = 2
             }
         }
         // start task defined above
@@ -358,19 +390,53 @@ class resultsViewController: UIViewController {
     /**
      Purpose: update display to show a result found from yelp search
      */
-    func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String) {
-        // update UI in main queue because UI changes must be done in the main queue
+    func setDisplay(name: String, addr: String, rating: Float, price: String, imageURL: String, siteURL: String) {
+        // update UI in main queue because UI changes must be done in the main thread
         DispatchQueue.main.async {
             self.restaurantName.text = name
             self.placeAddr.text = addr
             self.placeRating.text = String(rating)
             self.placePrice.text = price
-            self.displayYelpImage(imageURL: imageURL)
+            // if imageURL is empty, then clear UIImageView
+            if imageURL == "" {
+                self.restaurantImage.image = nil
+            }
+            // otherwise display image
+            else {
+                self.displayYelpImage(imageURL: imageURL)
+            }
+            self.siteURL = siteURL
+            self.placeMarker(position: self.restPosCoord)
         }
     }
     
     /**
-     Purpose: to download the image from the imageURL and display to user.
+     Purpose: To open the website retrieved from the API calls
+     */
+    
+    @objc func getRestInfo() {
+        // store siteURL into local variable
+        var urlString = siteURL
+        
+        // if spaces are in URL, replace them with +
+        if siteURL.contains(" ") {
+            urlString = siteURL.replacingOccurrences(of: " ", with: "+")
+        }
+        // output URL
+        print("URL: ", urlString)
+        
+        // if the URL can be opened, then open in safari
+        if let webURL = URL(string: urlString) {
+            UIApplication.shared.open(webURL, options: [:])
+        }
+            // else print error to console
+        else {
+            print("Error with opening google maps in safari")
+        }
+    }
+    
+    /**
+     Purpose: Download Yelp image of the restaurant image from the imageURL and display to user.
      */
     func displayYelpImage(imageURL: String) {
         // store imageURL as a URL type
@@ -383,7 +449,7 @@ class resultsViewController: UIViewController {
         let imageDownload = imageSession.dataTask(with: restImageURL!) { (data, response, error) in
             // check for error
             if let e = error {
-                print("Error downloading cat picture: \(e)")
+                print("Error downloading picture: \(e)")
             } else {
                 //in case of now error, checking wheather the response is nil or not
                 if (response as? HTTPURLResponse) != nil {
@@ -398,7 +464,6 @@ class resultsViewController: UIViewController {
                         DispatchQueue.main.async {
                             self.restaurantImage.image = image
                         }
-                        
                     } else {
                         print("Image file is corrupted")
                     }
@@ -425,11 +490,13 @@ class resultsViewController: UIViewController {
      */
     func googleGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, minPrice: Int, maxPrice: Int, minRating: Float) {
         
+        // store keyword into local variable and set searchtype to food
         var word = keyword
         var searchtype = "food"
+        // remove trailing whitespace from string and set string to all lowercase
         word = word.trimmingCharacters(in: .whitespaces)
         word = word.lowercased() 
-        // if the keywrod is a restaurant set API to search restaurants, otherwise food is used
+        // if the keyword is a restaurant set API to search restaurants instead of food
         if restList.contains(word) {
             searchtype = "restaurant"
         }
@@ -447,13 +514,13 @@ class resultsViewController: UIViewController {
         
         print("search type: ", searchtype)
         
-        // URL string that returns the JSON object for parsing
+        // init string to use for API request
         let urlString = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=\(lat),\(lng)&radius=\(radius)&type=\(searchtype)&minprice=\(minPrice)&maxprice=\(max)&keyword=\(word)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
         
-        // set urlString to be URL type?
+        // set urlString to be URL
         guard let url = URL(string: urlString) else { return }
         
-        // create task to execute API call and parse the JSON into the RestList array
+        // create task to execute API call and parse the JSON result into the RestList array
         let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
             // if the error is not nil, then print out error message
             if error != nil {
@@ -496,16 +563,13 @@ class resultsViewController: UIViewController {
                 // set coordinates of resturant
                 self.restPosCoord = CLLocationCoordinate2D(latitude: self.googleRestList[self.randomNum].lat, longitude: self.googleRestList[self.randomNum].lng)
             }
-            else {
-                self.results = 2
-            }
         }
         // start task specified above
         task.resume()
     }
     
     /**
-     Purpose: updates the display in resultsViewController to show resturant name, address, rating, price and image of randomly generated resturant for a restaurant from Google
+     Purpose: Updates display in resultsViewController to show resturant name, address, rating, price and image of randomly generated resturant for a restaurant from Google
      */
     func setDisplay(pid: String) {
         //init GMSPlacesClient() to access Google Places info
@@ -525,12 +589,18 @@ class resultsViewController: UIViewController {
             }
             
             // set text fields to the resturant info
+            self.siteURL = "https://www.google.com/search?q=\(place.name)+\(place.formattedAddress!)"
             self.restaurantName.text = place.name
             self.placeAddr.text = place.formattedAddress
             self.placeRating.text = String(place.rating)
             self.placePrice.text = self.text(for: place.priceLevel)
             self.loadFirstPhotoForPlace(placeID: place.placeID)
         })
+        
+        // in main queue set a marker on the Map
+        DispatchQueue.main.async {
+            self.placeMarker(position: self.restPosCoord)
+        }
     }
     
     /**
@@ -542,9 +612,6 @@ class resultsViewController: UIViewController {
         // init a marker for the passed in position
         let marker = GMSMarker(position: position)
         
-        //set title of the marker to the name of the resturant
-        marker.title = restaurantName.text
-        
         //update the map
         marker.map = mapView
     }
@@ -555,6 +622,9 @@ class resultsViewController: UIViewController {
      Parameter: UIButton: waits for the UIButton to be pressed, then executes this function
      */
     @IBAction func SearchAgain(_ sender: UIButton) {
+        // enable previous button
+        displayPrevious.isEnabled = true
+        
         // clear map of existing markers
         mapView.clear()
         
@@ -569,39 +639,117 @@ class resultsViewController: UIViewController {
             size = yelpRestList.count
         }
         
-        // if statement to ensure that we generate the correct amount of random numbers
-        if (randomNumList.count < size) {
-            // store a value
-            var temp = Int()
+        // calc difference between elems in randomNumList and currentRandomIndex
+        let diff = randomNumList.count - currentRandomIndex
+        
+        // if the difference between randomNumList.count and currentRandomIndex > 1, then go to next elem in randomNumList
+        if diff > 1 {
+            // increment currentRandomIndex
+            currentRandomIndex+=1
             
-            // if the random number was already used (in randomNumList) then calculate again
-            repeat {
-                temp = Int(arc4random_uniform(UInt32(size)))
-            } while (randomNumList.contains(temp))
+            // get new randomNumList index
+            let num = randomNumList[currentRandomIndex]
             
-            // update randomNum with new randomNum and add it to the randomNumList
-            randomNum = temp
-            randomNumList.append(temp)
-            
-            // update the display
+            // update display and set coordinates based on service
             if service == "Google" {
-                setDisplay(pid: googleRestList[randomNum].pid)
-                
-                restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
+                setDisplay(pid: googleRestList[num].pid)
+                restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[num].lat, longitude: googleRestList[num].lng)
             }
-            else {
-                setDisplay(name: yelpRestList[randomNum].name, addr: yelpRestList[randomNum].addr, rating: yelpRestList[randomNum].rating, price: yelpRestList[randomNum].price, imageURL: yelpRestList[randomNum].imageURL)
+            else { // Yelp
+                setDisplay(name: yelpRestList[num].name,
+                           addr: yelpRestList[num].addr,
+                           rating: yelpRestList[num].rating,
+                           price: yelpRestList[num].price,
+                           imageURL: yelpRestList[num].imageURL,
+                           siteURL: yelpRestList[num].siteURL)
                 
-                restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
+                restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[num].lat, longitude: yelpRestList[num].lng)
             }
+        }
+        else {
+            // if statement to ensure that we generate the correct amount of random numbers
+            if (randomNumList.count < size) {
+                // init local variable to store randomly generated number
+                var temp = Int()
+                
+                // if the random number was already used (in randomNumList) then calculate again
+                repeat {
+                    temp = Int(arc4random_uniform(UInt32(size)))
+                } while (randomNumList.contains(temp))
+                
+                // update randomNum with new randomNum and add it to the randomNumList
+                randomNum = temp
+                randomNumList.append(temp)
+                
+                // set currentRandomIndex (this is the currently displayed restaurant from the randomNumList
+                currentRandomIndex = randomNumList.count-1
+                
+                // update the display
+                if service == "Google" {
+                    setDisplay(pid: googleRestList[randomNum].pid)
+                    
+                    restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[randomNum].lat, longitude: googleRestList[randomNum].lng)
+                }
+                else { //Yelp
+                    setDisplay(name: yelpRestList[randomNum].name,
+                               addr: yelpRestList[randomNum].addr,
+                               rating: yelpRestList[randomNum].rating,
+                               price: yelpRestList[randomNum].price,
+                               imageURL: yelpRestList[randomNum].imageURL,
+                               siteURL: yelpRestList[randomNum].siteURL)
+                    
+                    restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[randomNum].lat, longitude: yelpRestList[randomNum].lng)
+                }
 
-            // place new marker
-            placeMarker(position: restPosCoord)
-            
-            // if we have reached the end of the list of restaurants, disable the button
-            if (randomNumList.count == size) {
-                searchAgain.isEnabled = false;
+                // place new marker
+                placeMarker(position: restPosCoord)
+                
+                // if we have reached the end of the list of restaurants, disable the button
+                if (randomNumList.count == size) {
+                    searchAgain.isEnabled = false;
+                }
             }
+        }
+    }
+    
+    /**
+     Purpose: To display the previously shown restaurant to the user
+     
+     Parameter: sender: UIButton: when the previous button is pressed, exec function
+     */
+    @IBAction func displayPrevious(_ sender: UIButton) {
+        // enable true button
+        searchAgain.isEnabled = true
+        
+        // clear map of existing markers
+        mapView.clear()
+
+        // decrement current index
+        currentRandomIndex-=1
+        
+        // get the current elem from randomNumList
+        let currentElem = randomNumList[currentRandomIndex]
+        
+        // set display and coordinates of restaurant based on service
+        if service == "Google" {
+            setDisplay(pid: googleRestList[currentElem].pid)
+            
+            restPosCoord = CLLocationCoordinate2D(latitude: googleRestList[currentElem].lat, longitude: googleRestList[currentElem].lng)
+        }
+        else if service == "Yelp" {
+            setDisplay(name: yelpRestList[currentElem].name,
+                       addr: yelpRestList[currentElem].addr,
+                       rating: yelpRestList[currentElem].rating,
+                       price: yelpRestList[currentElem].price,
+                       imageURL: yelpRestList[currentElem].imageURL,
+                       siteURL: yelpRestList[currentElem].siteURL)
+            
+            restPosCoord = CLLocationCoordinate2D(latitude: yelpRestList[currentElem].lat, longitude: yelpRestList[currentElem].lng)
+        }
+        
+        // if we reach the first element in the list, then disable the button
+        if currentRandomIndex == 0 {
+            displayPrevious.isEnabled = false
         }
     }
     
@@ -722,7 +870,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: to open Google Maps app on phone
+     Purpose: Open Google Maps app on phone
      */
     private func openGoogleMaps() {
         // init beginning of string used for URL call
@@ -739,12 +887,11 @@ class resultsViewController: UIViewController {
         
         // set urlString as a URL fand then check if it can be opened.
         // If it can be opened then open the application and send it the data via URL
-        // if not then open in safari with the web URL using lat and lng
         let mapURL = URL(string: urlString)
-        if UIApplication.shared.canOpenURL(mapURL!)
-        {
+        if UIApplication.shared.canOpenURL(mapURL!) {
             UIApplication.shared.open(mapURL!, options: [:], completionHandler: nil)
         }
+        // if not then open in safari with the web URL using lat and lng
         else {
             // open safari
             if let webURL = URL(string: "https://google.com/maps?daddr=\(restPosCoord.latitude),\(restPosCoord.longitude)") {
@@ -757,7 +904,7 @@ class resultsViewController: UIViewController {
     }
     
     /**
-     Purpose: to open Apple Maps app on phone
+     Purpose: Open Apple Maps app on phone
      */
     private func openAppleMaps() {
         // init first part of URL
@@ -767,24 +914,24 @@ class resultsViewController: UIViewController {
         let streetNumIsPresent = containsStreetNum(input: placeAddr.text!)
         
         // if a street number is present, then append resturant address to string and remove commas and replace spaces with +
-        // if not then use lat and lng of resturant
         if streetNumIsPresent {
             urlString.append(placeAddr.text!)
             urlString = urlString.replacingOccurrences(of: ",", with: "")
             urlString = urlString.replacingOccurrences(of: " ", with: "+")
         }
+        // if not then use lat and lng of resturant
         else {
             urlString.append("\(restPosCoord.latitude),\(restPosCoord.longitude)")
         }
         
         // init string as URL
         // if the url can be opened in apple maps then open apple maps and display directions to resturant
-        // if not then open google maps with safari to display directions
         let mapURL = URL(string: urlString)
         if UIApplication.shared.canOpenURL(mapURL!)
         {
             UIApplication.shared.open(mapURL!, options: [:], completionHandler: nil)
         }
+        // if not then open google maps with safari to display directions
         else {
             // open safari
             if let webURL = URL(string: "https://google.com/maps?daddr=\(restPosCoord.latitude),\(restPosCoord.longitude)") {
@@ -845,16 +992,16 @@ extension resultsViewController: CLLocationManagerDelegate {
         else if dist > 0.6 && dist <= 1.5 {
             zoom = 13
         }
-        else if dist > 1.6 && dist <= 2.5 {
+        else if dist > 1.6 && dist <= 3.5 {
             zoom = 12
         }
-        else if dist > 2.5 && dist <= 4 {
+        else if dist > 3.6 && dist <= 5.5 {
             zoom = 11
         }
-        else if dist > 4 {
+        else { 
             zoom = 10
         }
-        
+
         // set camera position and zoom
         mapView.camera = GMSCameraPosition(target: location.coordinate, zoom: zoom, bearing: 0, viewingAngle: 0)
         // stop updating location of user
