@@ -34,7 +34,7 @@ struct loc: Codable {
 struct location: Codable {
     let lat: Double
     let lng: Double
-}
+} //**** 
 
 /**
  Purpose: defines the RestInfo type. This is the info stored for each resturant
