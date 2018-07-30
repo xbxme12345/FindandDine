@@ -29,7 +29,7 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     var meal = ""
     var day = ""
     
-    private let theme = TCPickerViewDarkTheme()
+    //private let theme = TCPickerViewLightTheme()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,7 +66,7 @@ class ftViewController: UIViewController, TCPickerViewOutput {
             ]
         let values = meal.map { TCPickerView.Value(title: $0) }
         picker.values = values
-        picker.theme = self.theme
+        //picker.theme = self.theme
         picker.delegate = self
         picker.selection = .multiply
         self.typeOfMeal.removeAll()
@@ -106,7 +106,7 @@ class ftViewController: UIViewController, TCPickerViewOutput {
             ]
         let values = dayOfWeek.map { TCPickerView.Value(title: $0) }
         picker.values = values
-        picker.theme = self.theme
+        //picker.theme = self.theme
         picker.delegate = self
         picker.selection = .multiply
         self.dayOfWeekVal.removeAll()
