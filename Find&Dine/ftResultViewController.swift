@@ -340,6 +340,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             let distance = elements2["distance"] as! NSDictionary
             if let distanceVal = distance["value"] as? Double {
                 self.distanceDouble.append(distanceVal)
+                print(distanceVal)
             }
         }
     }

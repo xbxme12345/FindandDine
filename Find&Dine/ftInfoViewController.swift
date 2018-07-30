@@ -37,6 +37,8 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         ftMeal.text = meal
         ftDay.text = dayOfWeek
         
+        print(ftName)
+        
         self.mapView.mapType = MKMapType.standard
         self.mapView.showsUserLocation = true
         //self.mapView.center = mapView.userLocation.coordinate
