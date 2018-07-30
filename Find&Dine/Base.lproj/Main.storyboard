@@ -341,7 +341,7 @@
         <scene sceneID="8NT-tg-n9j">
             <objects>
                 <navigationController id="Xzp-7L-nSg" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Food Truck" id="Vj2-LP-GbV"/>
+                    <tabBarItem key="tabBarItem" title="Food Truck" image="foodtruck" selectedImage="foodtruck" id="Vj2-LP-GbV"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="OXp-rb-DM1">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -479,7 +479,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Ues-b9-phQ"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Food Truck" id="WMD-Z2-gQY"/>
+                    <tabBarItem key="tabBarItem" title="Food Truck" selectedImage="foodtruck" id="WMD-Z2-gQY"/>
                     <navigationItem key="navigationItem" title="Find &amp; Dine" id="cJI-xm-wuh">
                         <barButtonItem key="rightBarButtonItem" title="Search" id="OYe-qI-qy1">
                             <connections>
@@ -650,7 +650,7 @@
         <scene sceneID="3Hf-5P-bpE">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="abe-Hn-TjT" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Restuarant" id="GYI-2k-J6v"/>
+                    <tabBarItem key="tabBarItem" title="Restuarant" image="shop 1.5x" selectedImage="shop 1.5x" id="GYI-2k-J6v"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="V6x-sn-ZaJ">
                         <rect key="frame" x="0.0" y="44" width="375" height="44"/>
@@ -666,4 +666,8 @@
             <point key="canvasLocation" x="1318" y="-227"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="foodtruck" width="25" height="25"/>
+        <image name="shop 1.5x" width="96" height="96"/>
+    </resources>
 </document>
