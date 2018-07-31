@@ -20,8 +20,6 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     
-    
-    
     //local variables for receiving data from tableView VC
     var location = String()
     var meal = String()

@@ -32,6 +32,15 @@ struct DistanceOrTime: Codable {
     var text: String
     var value: Double
 }
+
+//Structure for Food Truck JSON
+struct JSON_FoodTruck: Codable {
+    var Meal: String!
+    var Location: String!
+    var DayOfWeek: String!
+    var FoodTruck: String!
+    var Link: String!
+}
 /*-----------------------------------------*/
 
 /**
@@ -86,6 +95,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     //Array to store all distinct addresses in JSON file
     var allFTAddress = Set<String>()
     
+    //Variable to store
     var travelDistKM: Double!
     
     //Init location manager
@@ -126,7 +136,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         
         foodTruck = foodTruckList[indexPath.row]
         cell.textLabel?.text = foodTruck.foodTruckName
-        cell.detailTextLabel?.text = "\(foodTruck.location)    \(foodTruck.dayOfWeek) \(foodTruck.meal)"
+        cell.detailTextLabel?.text = "\(foodTruck.location)\n\(foodTruck.dayOfWeek) \(foodTruck.meal)"
         
         stopLoading()
         return cell
@@ -173,7 +183,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/40071846cf47e23884fb248339058ce9c8e66f43/foodtruck.json") else {return}
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/c36a282557a79d35d43bdc6999e21c766bd289e5/foodtruck.json") else {return}
         
         //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -198,7 +208,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                         self.allFTAddress.insert(address)
                     }
                 }
-                
             } catch let parsingError {
                 print("Error ", parsingError)
             }
@@ -228,7 +237,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     func getFoodTruckInfo() {
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/40071846cf47e23884fb248339058ce9c8e66f43/foodtruck.json") else {return}
+        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/c36a282557a79d35d43bdc6999e21c766bd289e5/foodtruck.json") else {return}
         
         //Intitialize the URL session with the online food truck JSON file
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
@@ -248,11 +257,17 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
                 for elem in jsonArray {
                     if self.typeOfMealValue.contains(elem["Meal"] as! String) {
                         if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
-                            let dist = self.getDistLoc(addString: "\(elem["Location"])")
-                            if(dist <= self.travelDistKM) {
+                            
+                            let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=\(self.location)&destinations=\(elem["Location"])&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
+                            
+                            guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else {return}
+                            
+                            let base_url = try! Data(contentsOf: url)
+                            
+                            var distData = try! JSONDecoder().decode(JSON_Distance.self, from: base_url)
+                            
+                            if((distData.rows[0].elements[0].distance.value) <= self.travelDistKM) {
                                 foodTruckList.append(ftInfo(meal: elem["Meal"] as! String, location: elem["Location"] as!String, dayOfWeek: elem["DayOfWeek"] as! String, foodTruckName: elem["FoodTruck"] as! String, ftLink: elem["Link"] as! String))
-                            } else {
-                                //Skip
                             }
                         }
                     }
@@ -267,23 +282,6 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             }
         }
         task.resume()
-    }
-    
-    /*
-     Purpose: Calculate the distance between two address
-     */
-    func getDistLoc(addString: String) -> Double {
-        //URL string that returns the JSON object for parsing
-        let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=\(self.location)&destinations=\(addString)&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
-        
-        guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else {return 0.0}
-        
-        let base_url = try! Data(contentsOf: url)
-        
-        let distData = try! JSONDecoder().decode(JSON_Distance.self, from: base_url)
-        let distVal = distData.rows[0].elements[0].distance.value
-
-        return distVal
     }
     
     /*
