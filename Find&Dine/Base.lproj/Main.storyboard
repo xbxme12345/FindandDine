@@ -9,7 +9,6 @@
         <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="Unknown constraint types" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -439,11 +438,9 @@
                             <constraint firstItem="nEq-Db-DkO" firstAttribute="top" secondItem="Ues-b9-phQ" secondAttribute="top" constant="10" id="KOH-5Y-jCm"/>
                             <constraint firstItem="MRd-id-eZV" firstAttribute="leading" secondItem="Ues-b9-phQ" secondAttribute="leading" constant="15" id="KfT-HJ-zad"/>
                             <constraint firstItem="abS-za-3GQ" firstAttribute="leading" secondItem="Ues-b9-phQ" secondAttribute="leading" constant="16" id="N9N-DK-3AB"/>
-                            <constraint firstAttribute="top" secondItem="Ues-b9-phQ" secondAttribute="top" constant="8" id="OSk-j4-w1Y"/>
                             <constraint firstItem="XYs-sM-apY" firstAttribute="top" secondItem="abS-za-3GQ" secondAttribute="bottom" constant="35" id="Q0a-94-N5y"/>
                             <constraint firstItem="r2M-on-4t0" firstAttribute="top" secondItem="aMG-e4-hqT" secondAttribute="bottom" constant="18" id="SL1-lX-T3i"/>
                             <constraint firstItem="nqX-AY-qgr" firstAttribute="top" secondItem="XYs-sM-apY" secondAttribute="bottom" constant="8" id="e5j-kP-cFd"/>
-                            <constraint firstAttribute="leading" secondItem="hvw-79-D43" secondAttribute="leadingMargin" id="fh5-Be-JFb"/>
                             <constraint firstItem="Ues-b9-phQ" firstAttribute="trailing" secondItem="owe-09-lxj" secondAttribute="trailing" constant="15" id="g7Z-IG-db4"/>
                             <constraint firstItem="Ues-b9-phQ" firstAttribute="trailing" secondItem="XiP-b6-M3X" secondAttribute="trailing" constant="15" id="i7q-rH-JPl"/>
                             <constraint firstItem="nqX-AY-qgr" firstAttribute="leading" secondItem="Ues-b9-phQ" secondAttribute="leading" constant="108" id="lLA-W5-fxh"/>
