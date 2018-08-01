@@ -4,7 +4,6 @@
 //
 //  Created by Gregory Lee on 6/6/18.
 //  Copyright © 2018 WIT Senior Design. All rights reserved.
-//
 
 // import Google Maps and Google Places
 import GooglePlacePicker
@@ -31,10 +30,6 @@ struct infoResult: Codable {
 struct loc: Codable {
     let location: [String: Double]?
 }
-struct location: Codable {
-    let lat: Double
-    let lng: Double
-}
 
 /**
  Purpose: defines the RestInfo type. This is the info stored for each resturant
@@ -50,8 +45,16 @@ struct googleRestInfo {
  */
 // main struct
 struct yelpJSON: Codable {
+    let error: err?
     let businesses: [rest]?
     let total: Int?
+}
+struct err: Codable {
+    let code: String?
+    
+    init(_ code: String? = "") {
+        self.code = code
+    }
 }
 // supplementary structs
 struct rest: Codable {
@@ -271,10 +274,9 @@ class resultsViewController: UIViewController {
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
-        // set searchtype to food, set keyword to all lowercase and remove trailing whitespace
-        var word = keyword
+        // set searchtype to food, remove trailing whitespace and set keyword to all lowercase 
+        var word = keyword.trimmingCharacters(in: .whitespaces)
         var searchtype = "food"
-        word = word.trimmingCharacters(in: .whitespaces)
         word = word.lowercased()
         
         // if keyword is a restaurant, then set search to restaurant, otherwise use food
@@ -283,7 +285,7 @@ class resultsViewController: UIViewController {
         }
         // replace spaces in keyword with + for API call if found in string
         if word.contains(" ") {
-            word = keyword.replacingOccurrences(of: " ", with: "+")
+            word = word.replacingOccurrences(of: " ", with: "+")
         }
  
         // check to see if minPrice is greater than maxPrice. This can happen when maxPrice options are disabled and a new maxPrice is not selected.
@@ -321,20 +323,20 @@ class resultsViewController: UIViewController {
                 print(error!.localizedDescription)
             }
             // output JSON response
-//            if let httpResponse = response as? HTTPURLResponse {
-//                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-//                print(dataString!)
-//            }
+            if let httpResponse = response as? HTTPURLResponse {
+                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+                print(dataString!)
+            }
             guard let data = data else { return }
             
             // decode JSON and parse info into yelpRestList
             do {
                 let yelpRestResult = try JSONDecoder().decode(yelpJSON.self, from: data)
                 
-                // if results are returned by the API, then proceed with parse
-                if yelpRestResult.total != 0 {
+                // if results are returned by the API with no errors, then proceed with parse
+                if yelpRestResult.total != 0 && yelpRestResult.error?.code == nil {
                     var temp: String // define string for address
-                    // iterate through yelpRestInfo
+                    // iterate through yelpRestResult
                     for elem in yelpRestResult.businesses! {
                         // if rating of restaurant is above minRating, then add to yelpRestList
                         
@@ -490,11 +492,10 @@ class resultsViewController: UIViewController {
      */
     func googleGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, minPrice: Int, maxPrice: Int, minRating: Float) {
         
-        // store keyword into local variable and set searchtype to food
-        var word = keyword
+        // store keyword into local variable, remove trailing whitespace from string and set string to all lowercase and set search type to food
+        var word = keyword.trimmingCharacters(in: .whitespaces)
         var searchtype = "food"
-        // remove trailing whitespace from string and set string to all lowercase
-        word = word.trimmingCharacters(in: .whitespaces)
+        
         word = word.lowercased() 
         // if the keyword is a restaurant set API to search restaurants instead of food
         if restList.contains(word) {
@@ -502,10 +503,10 @@ class resultsViewController: UIViewController {
         }
         
         // replace spaces in keyword with + for API call
-        if keyword.contains(" ") {
-            word = keyword.replacingOccurrences(of: " ", with: "+")
+        if word.contains(" ") {
+            word = word.replacingOccurrences(of: " ", with: "+")
         }
-        
+        word = word.trimmingCharacters(in: .punctuationCharacters)
         // if minPrice is higher than maxPrice, set maxPrice to minPrice
         var max = maxPrice
         if minPrice >= maxPrice {
