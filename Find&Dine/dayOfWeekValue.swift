@@ -8,6 +8,7 @@
 
 import Foundation
 
+//Struct for day of week picker
 class dayOfWeekValue {
     var dayOfWeek: String
     

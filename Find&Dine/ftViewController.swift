@@ -17,7 +17,6 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     @IBOutlet weak var showMeal: UIButton!
     @IBOutlet weak var daySelection: UIButton!
     
-    
     @IBOutlet weak var displayMeal: UILabel!
     @IBOutlet weak var displayDay: UILabel!
     
@@ -28,6 +27,8 @@ class ftViewController: UIViewController, TCPickerViewOutput {
     var dayOfWeekVal = [String]()
     var meal = ""
     var day = ""
+    
+    let activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView();
     
     //private let theme = TCPickerViewLightTheme()
     
@@ -185,6 +186,16 @@ class ftViewController: UIViewController, TCPickerViewOutput {
         ftVC.travelDistance = self.travelDistanceInput.text!
         ftVC.typeOfMealValue = self.typeOfMeal
         ftVC.dayOfWeekValue = self.dayOfWeekVal
+    }
+    
+    func startLoading() {
+        activityIndicator.center = self.view.center
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.whiteLarge
+        activityIndicator.color = UIColor.black
+        view.addSubview(activityIndicator)
+        activityIndicator.startAnimating()
+        UIApplication.shared.beginIgnoringInteractionEvents()
     }
     
     /**
