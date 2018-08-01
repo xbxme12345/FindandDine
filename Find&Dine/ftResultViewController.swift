@@ -41,11 +41,8 @@ struct JSON_FoodTruck: Codable {
     var FoodTruck: String!
     var Link: String!
 }
-/*-----------------------------------------*/
 
-/**
- Purpose: defines the ftInfo type. This is the info stored for each resturant
- */
+//Structure to store food truck info
 struct ftInfo {
     let meal: String
     let location: String
@@ -62,16 +59,8 @@ struct ftInfo {
     }
 }
 
-struct AllFTAddress {
-    var ftAddress: String
-    
-    init(ftAddress: String) {
-        self.ftAddress = ftAddress
-    }
-}
-
 //Global Variables to be used on other VC
-//Store the food truck to display in table view UI
+//Store the food truck info as global to display in table view UI
 var foodTruckList = [ftInfo]()
 var selectedIndex = 0
 var name = ""
@@ -79,10 +68,6 @@ var address = ""
 var meal = ""
 var day = ""
 var link = ""
-
-//Array to store all distinct addresses in JSON file
-var allFTAddress = Set<String>()
-
 
 class ftResultViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -177,28 +162,19 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //Initializing the start of the activity indicator
         startLoading()
         
         //Set location manager delegate and request for location use if not authorized already
         locationManager.requestWhenInUseAuthorization()
         
-        
-        //JSON file link for food truck info
-        //URL string that returns the JSON object for parsing
-        guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/c36a282557a79d35d43bdc6999e21c766bd289e5/foodtruck.json") else {return}
-        
-        let base_url = try! Data(contentsOf: url)
-        let ftData = try! JSONDecoder().decode([JSON_FoodTruck].self, from: base_url)
-        
-        //Retrieves all address and inserts into a set
-        for i in 0...ftData.count-1 {
-            allFTAddress.insert(ftData[i].Location)
-        }
-        
+        //Pass variable/value to function to convert from miles to meters
         self.travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
         
+        //Function to retrieve food truck list based upon user criteria
         self.getFoodTruckInfo()
         
+        //Clears foodTruckList array
         foodTruckList.removeAll()
     }
     
@@ -231,14 +207,12 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
             //Parse through json file using close by address, user selected type of meal and day of the week
             //Append all results/food truck info to array
             do {
-                
                 let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
                 guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
                 
                 for elem in jsonArray {
                     if self.typeOfMealValue.contains(elem["Meal"] as! String) {
                         if self.dayOfWeekValue.contains(elem["DayOfWeek"] as! String) {
-                            
                             let urlString = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=\(self.location)&destinations=\(elem["Location"])&key=AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg"
                             
                             guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!) else {return}
@@ -286,5 +260,3 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         UIApplication.shared.endIgnoringInteractionEvents()
     }
 }
-
-

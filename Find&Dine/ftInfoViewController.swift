@@ -32,14 +32,11 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         
         foodTruckName.text = ftName
         ftAddress.text = location
-        ftMeal.text = "Meal Type: \(meal)"
+        ftMeal.text = meal
         ftDay.text = dayOfWeek
-        
-        print(ftName)
         
         self.mapView.mapType = MKMapType.standard
         self.mapView.showsUserLocation = true
-        //self.mapView.center = mapView.userLocation.coordinate
         
         let annotation = MKPointAnnotation()
         
@@ -61,10 +58,7 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
             self.mapView.setRegion(region, animated: true)
             self.mapView.addAnnotation(annotation)
         }
-        //self.mapView.removeAnnotations(self.mapView.annotations)
-        print(ftName, " ", location, " ", meal, " ", dayOfWeek)
     }
-    
     
     @IBAction func openFTLink(_ sender: Any) {
         openUrl(urlStr: "\(self.link)")
