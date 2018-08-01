@@ -80,6 +80,10 @@ var meal = ""
 var day = ""
 var link = ""
 
+//Array to store all distinct addresses in JSON file
+var allFTAddress = Set<String>()
+
+
 class ftResultViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     //Define connections
@@ -91,10 +95,7 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
     var travelDistance = String()
     var typeOfMealValue = [String]()
     var dayOfWeekValue = [String]()
-    
-    //Array to store all distinct addresses in JSON file
-    var allFTAddress = Set<String>()
-    
+
     //Variable to store
     var travelDistKM: Double!
     
@@ -180,43 +181,23 @@ class ftResultViewController: UIViewController, UITableViewDataSource, UITableVi
         
         //Set location manager delegate and request for location use if not authorized already
         locationManager.requestWhenInUseAuthorization()
-    
+        
+        
         //JSON file link for food truck info
         //URL string that returns the JSON object for parsing
         guard let url = URL(string: "https://gist.githubusercontent.com/xbxme12345/ef39ccba761091e6d6cff365be5968fc/raw/c36a282557a79d35d43bdc6999e21c766bd289e5/foodtruck.json") else {return}
         
-        //Intitialize the URL session with the online food truck JSON file
-        let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
-            guard let dataResponse = data,
-                error == nil else {
-                    print(error?.localizedDescription ?? "Response Error")
-                    return
-            }
-            
-            do {
-                let jsonResponse = try JSONSerialization.jsonObject(with: dataResponse, options: [])
-                guard let jsonArray = jsonResponse as? [[String: Any]] else {return}
-                
-                //Queries through JSON file and obtains all distinct addresses
-                var temp: [String] = []
-                for dic in jsonArray {
-                    guard let ftLocation = dic["Location"] as? String else {return}
-                    temp.append(ftLocation)
-                    
-                    //Append all distinct addresses to
-                    for address in temp {
-                        self.allFTAddress.insert(address)
-                    }
-                }
-            } catch let parsingError {
-                print("Error ", parsingError)
-            }
-            
-            self.travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
-            
-            self.getFoodTruckInfo()
+        let base_url = try! Data(contentsOf: url)
+        let ftData = try! JSONDecoder().decode([JSON_FoodTruck].self, from: base_url)
+        
+        //Retrieves all address and inserts into a set
+        for i in 0...ftData.count-1 {
+            allFTAddress.insert(ftData[i].Location)
         }
-        task.resume()
+        
+        self.travelDistKM = self.getDistance(distance: Double(self.travelDistance)!)
+        
+        self.getFoodTruckInfo()
         
         foodTruckList.removeAll()
     }

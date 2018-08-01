@@ -32,7 +32,7 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         
         foodTruckName.text = ftName
         ftAddress.text = location
-        ftMeal.text = meal
+        ftMeal.text = "Meal Type: \(meal)"
         ftDay.text = dayOfWeek
         
         print(ftName)
