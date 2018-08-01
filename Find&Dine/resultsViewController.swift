@@ -275,9 +275,8 @@ class resultsViewController: UIViewController {
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
         // set searchtype to food, set keyword to all lowercase and remove trailing whitespace
-        var word = keyword
+        var word = keyword.trimmingCharacters(in: .whitespaces)
         var searchtype = "food"
-        word = word.trimmingCharacters(in: .whitespaces)
         word = word.lowercased()
         
         // if keyword is a restaurant, then set search to restaurant, otherwise use food
@@ -286,7 +285,7 @@ class resultsViewController: UIViewController {
         }
         // replace spaces in keyword with + for API call if found in string
         if word.contains(" ") {
-            word = keyword.replacingOccurrences(of: " ", with: "+")
+            word = word.replacingOccurrences(of: " ", with: "+")
         }
  
         // check to see if minPrice is greater than maxPrice. This can happen when maxPrice options are disabled and a new maxPrice is not selected.
