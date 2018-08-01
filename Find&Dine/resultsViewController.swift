@@ -274,7 +274,7 @@ class resultsViewController: UIViewController {
         // define API key
         let apiKey = "kGYByIBQ7we_w1NzMu7vlcxXw0FkM7FcFQpphMExWkzAvSCYTenJkTT4Ps5pOT_AoDwPB2LkHJ8HxExdL0spNO0I-qx5NIZwzPkGLtMBsojzzmPoO7ouYtIlomITW3Yx"
         
-        // set searchtype to food, set keyword to all lowercase and remove trailing whitespace
+        // set searchtype to food, remove trailing whitespace and set keyword to all lowercase 
         var word = keyword.trimmingCharacters(in: .whitespaces)
         var searchtype = "food"
         word = word.lowercased()
