@@ -20,8 +20,6 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     
-    
-    
     //local variables for receiving data from tableView VC
     var location = String()
     var meal = String()
@@ -36,6 +34,8 @@ class ftInfoViewController: UIViewController, CLLocationManagerDelegate {
         ftAddress.text = location
         ftMeal.text = meal
         ftDay.text = dayOfWeek
+        
+        print(ftName)
         
         self.mapView.mapType = MKMapType.standard
         self.mapView.showsUserLocation = true
