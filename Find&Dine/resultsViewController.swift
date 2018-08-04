@@ -50,8 +50,9 @@ struct yelpJSON: Codable {
     let total: Int?
 }
 struct err: Codable {
-    let code: String?
+    var code: String?
     
+    // init code to be an empty string. If there is an error returned the string is changed
     init(_ code: String? = "") {
         self.code = code
     }
@@ -155,7 +156,7 @@ class resultsViewController: UIViewController {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         
-        //init info button
+        // init info button
         let infoButton = UIButton(type: .infoDark)
         
         // define action when pressed
@@ -212,6 +213,7 @@ class resultsViewController: UIViewController {
                 }
             }
             else {
+                // if no results meet criteria, notify user
                 noResultsAlert()
             }
         }
@@ -239,6 +241,7 @@ class resultsViewController: UIViewController {
                 }
             }
             else {
+                // if no results meet criteria, notify user
                 noResultsAlert()
             }
         }
@@ -323,23 +326,22 @@ class resultsViewController: UIViewController {
                 print(error!.localizedDescription)
             }
             // output JSON response
-            if let httpResponse = response as? HTTPURLResponse {
-                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-                print(dataString!)
-            }
+//            if let httpResponse = response as? HTTPURLResponse {
+//                let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+//                print(dataString!)
+//            }
             guard let data = data else { return }
             
             // decode JSON and parse info into yelpRestList
             do {
                 let yelpRestResult = try JSONDecoder().decode(yelpJSON.self, from: data)
-                
+             
                 // if results are returned by the API with no errors, then proceed with parse
                 if yelpRestResult.total != 0 && yelpRestResult.error?.code == nil {
                     var temp: String // define string for address
                     // iterate through yelpRestResult
                     for elem in yelpRestResult.businesses! {
                         // if rating of restaurant is above minRating, then add to yelpRestList
-                        
                         if elem.rating! >= minRating {
                             self.results = 0
                             
@@ -347,20 +349,22 @@ class resultsViewController: UIViewController {
                             if elem.location!.display_address.count == 0 {
                                 temp = "No address listed for restaurant"
                             }
-                                // if there is only 1 element in the array, that element will be stored for the address
+                            // if there is only 1 element in the array, that element will be stored for the address
                             else if elem.location!.display_address.count == 1 {
                                 temp = elem.location!.display_address[0]!
                             }
-                                // else: combine both entries of the address into 1 and store in yelpRestList
+                            // else: combine both entries of the address into 1 and store in yelpRestList
                             else {
                                 temp = elem.location!.display_address[0]! + " " + elem.location!.display_address[1]!
                             }
                             
+                            // add restaurant to array
                             self.yelpRestList.append(yelpRestInfo(name: elem.name!, addr: temp, rating: elem.rating!, price: elem.price!, lat: elem.coordinates!.latitude!, lng: elem.coordinates!.longitude!, imageURL: elem.image_url!, siteURL: elem.url!))
                         }
                     }
                 }
                 else {
+                    // set results to 1 and output no results returned to log.
                     self.results = 1
                     print("no results returned")
                     return
@@ -415,7 +419,6 @@ class resultsViewController: UIViewController {
     /**
      Purpose: To open the website retrieved from the API calls
      */
-    
     @objc func getRestInfo() {
         // store siteURL into local variable
         var urlString = siteURL
@@ -431,7 +434,7 @@ class resultsViewController: UIViewController {
         if let webURL = URL(string: urlString) {
             UIApplication.shared.open(webURL, options: [:])
         }
-            // else print error to console
+        // else print error to console
         else {
             print("Error with opening google maps in safari")
         }
@@ -455,14 +458,12 @@ class resultsViewController: UIViewController {
             } else {
                 //in case of now error, checking wheather the response is nil or not
                 if (response as? HTTPURLResponse) != nil {
-                    
-                    //checking if the response contains an image
+                    //check if response contains an image
                     if let imageData = data {
-                        
-                        //getting the image
+                        //get image
                         let image = UIImage(data: imageData)
                         
-                        //displaying the image
+                        //display the image
                         DispatchQueue.main.async {
                             self.restaurantImage.image = image
                         }
@@ -491,7 +492,6 @@ class resultsViewController: UIViewController {
      minRating: Float - minimum restaurant rating set by user
      */
     func googleGetRestaurants(lat: Double, lng: Double, radius: Double, keyword: String, minPrice: Int, maxPrice: Int, minRating: Float) {
-        
         // store keyword into local variable, remove trailing whitespace from string and set string to all lowercase and set search type to food
         var word = keyword.trimmingCharacters(in: .whitespaces)
         var searchtype = "food"
@@ -719,7 +719,7 @@ class resultsViewController: UIViewController {
      Parameter: sender: UIButton: when the previous button is pressed, exec function
      */
     @IBAction func displayPrevious(_ sender: UIButton) {
-        // enable true button
+        // enable Next button
         searchAgain.isEnabled = true
         
         // clear map of existing markers
@@ -987,6 +987,7 @@ extension resultsViewController: CLLocationManagerDelegate {
         let dist = Double(travelDistance)!
         var zoom = Float()
         
+        // set zoom level based on distance entered 
         if dist > 0 && dist <= 0.5 {
             zoom = 14
         }

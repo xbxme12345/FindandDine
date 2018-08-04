@@ -7,11 +7,8 @@
 //
 
 import UIKit
-import Firebase
 import GooglePlaces
 import GoogleMaps
-import CDYelpFusionKit
-import SQLite3
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,9 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Google Maps SDK
         GMSServices.provideAPIKey("AIzaSyDtbc_paodfWo1KRW0fGQ1dB--g8RyG-Kg")
-        
-        // CD Yelp Fusion Kit API
-        CDYelpFusionKitManager.shared.configure()
         
         return true
     }

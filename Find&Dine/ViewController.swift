@@ -159,9 +159,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // update locationInput to display current location
         setCurrentLocation()
         
-        // stop updating location 
-        locationManager.stopUpdatingLocation()
-        
         // set location manager as delegate
         locationManager.delegate = self
         
