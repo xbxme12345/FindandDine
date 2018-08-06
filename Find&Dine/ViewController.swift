@@ -14,7 +14,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     // init location manager
     let locationManager = CLLocationManager()
     
-    // init GMSPlacesClient
+    // init GMSPlacesClient. Used to retrieve the current location 
     var placesClient: GMSPlacesClient!
     
     // define connections to input fields for ViewController
@@ -158,9 +158,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
         // update locationInput to display current location
         setCurrentLocation()
-        
-        // stop updating location 
-        locationManager.stopUpdatingLocation()
         
         // set location manager as delegate
         locationManager.delegate = self

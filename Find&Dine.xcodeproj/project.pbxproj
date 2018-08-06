@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4919230420C85810004C5B68 /* resultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4919230320C85810004C5B68 /* resultsViewController.swift */; };
-		491FD72F210172A00048D390 /* yelpAPIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 491FD72E210172A00048D390 /* yelpAPIRequest.swift */; };
 		493DFD8F20C5C365005C91EE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */; };
 		49B2A20A20C5B1E5009E15A7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B2A20920C5B1E5009E15A7 /* AppDelegate.swift */; };
 		49B2A20C20C5B1E5009E15A7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B2A20B20C5B1E5009E15A7 /* ViewController.swift */; };
@@ -17,7 +16,6 @@
 		49B2A21420C5B1E6009E15A7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 49B2A21220C5B1E6009E15A7 /* LaunchScreen.storyboard */; };
 		6822E279B0E8E5E789D8157D /* Pods_Find_Dine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72EC6AA205751C76AA8A8EAA /* Pods_Find_Dine.framework */; };
 		D4014E03210F992200050E21 /* mealValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4014E02210F992200050E21 /* mealValue.swift */; };
-		D4823E1420D7476300B4167A /* CDYelpFusionKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4823E1320D7476300B4167A /* CDYelpFusionKit.swift */; };
 		D4823E1620D7478A00B4167A /* ftInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4823E1520D7478A00B4167A /* ftInfoViewController.swift */; };
 		D4823E1820D747A100B4167A /* ftResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4823E1720D747A100B4167A /* ftResultViewController.swift */; };
 		D4823E1A20D747B200B4167A /* ftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4823E1920D747B200B4167A /* ftViewController.swift */; };
@@ -26,7 +24,6 @@
 
 /* Begin PBXFileReference section */
 		4919230320C85810004C5B68 /* resultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = resultsViewController.swift; sourceTree = "<group>"; };
-		491FD72E210172A00048D390 /* yelpAPIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = yelpAPIRequest.swift; sourceTree = "<group>"; };
 		493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		49B2A20620C5B1E5009E15A7 /* Find&Dine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Find&Dine.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		49B2A20920C5B1E5009E15A7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -39,7 +36,6 @@
 		C016A4F479C6A1019D33FB6C /* Pods-Find&Dine.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Find&Dine.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Find&Dine/Pods-Find&Dine.debug.xcconfig"; sourceTree = "<group>"; };
 		D2820B0BC95537EA77C7948B /* Pods-Find&Dine.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Find&Dine.release.xcconfig"; path = "Pods/Target Support Files/Pods-Find&Dine/Pods-Find&Dine.release.xcconfig"; sourceTree = "<group>"; };
 		D4014E02210F992200050E21 /* mealValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mealValue.swift; sourceTree = "<group>"; };
-		D4823E1320D7476300B4167A /* CDYelpFusionKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CDYelpFusionKit.swift; sourceTree = "<group>"; };
 		D4823E1520D7478A00B4167A /* ftInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ftInfoViewController.swift; sourceTree = "<group>"; };
 		D4823E1720D747A100B4167A /* ftResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ftResultViewController.swift; sourceTree = "<group>"; };
 		D4823E1920D747B200B4167A /* ftViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ftViewController.swift; sourceTree = "<group>"; };
@@ -87,8 +83,6 @@
 				49B2A21220C5B1E6009E15A7 /* LaunchScreen.storyboard */,
 				493DFD8E20C5C365005C91EE /* GoogleService-Info.plist */,
 				49B2A21520C5B1E6009E15A7 /* Info.plist */,
-				491FD72E210172A00048D390 /* yelpAPIRequest.swift */,
-				D4823E1320D7476300B4167A /* CDYelpFusionKit.swift */,
 				D4823E1520D7478A00B4167A /* ftInfoViewController.swift */,
 				D4823E1720D747A100B4167A /* ftResultViewController.swift */,
 				D4823E1920D747B200B4167A /* ftViewController.swift */,
@@ -217,32 +211,20 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Find&Dine/Pods-Find&Dine-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/AlamofireObjectMapper/AlamofireObjectMapper.framework",
-				"${BUILT_PRODUCTS_DIR}/CDYelpFusionKit/CDYelpFusionKit.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/ObjectMapper/ObjectMapper.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
 				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/TCPickerView/TCPickerView.framework",
 				"${BUILT_PRODUCTS_DIR}/YelpAPI/YelpAPI.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlamofireObjectMapper.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CDYelpFusionKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjectMapper.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TCPickerView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/YelpAPI.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -277,11 +259,9 @@
 				49B2A20C20C5B1E5009E15A7 /* ViewController.swift in Sources */,
 				D4823E1A20D747B200B4167A /* ftViewController.swift in Sources */,
 				D4014E03210F992200050E21 /* mealValue.swift in Sources */,
-				D4823E1420D7476300B4167A /* CDYelpFusionKit.swift in Sources */,
 				D4823E1620D7478A00B4167A /* ftInfoViewController.swift in Sources */,
 				49B2A20A20C5B1E5009E15A7 /* AppDelegate.swift in Sources */,
 				4919230420C85810004C5B68 /* resultsViewController.swift in Sources */,
-				491FD72F210172A00048D390 /* yelpAPIRequest.swift in Sources */,
 				D4823E1820D747A100B4167A /* ftResultViewController.swift in Sources */,
 				D4DF9FB920FFBF310011C8A8 /* dayOfWeekValue.swift in Sources */,
 			);
@@ -429,11 +409,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = XQ75K8MK4B;
+				DEVELOPMENT_TEAM = 6A97XH873L;
 				INFOPLIST_FILE = "Find&Dine/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = SeniorDesign.FindandDine;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.wit.SeniorDesign.FindandDine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -447,11 +427,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = XQ75K8MK4B;
+				DEVELOPMENT_TEAM = 6A97XH873L;
 				INFOPLIST_FILE = "Find&Dine/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = SeniorDesign.FindandDine;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.wit.SeniorDesign.FindandDine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
