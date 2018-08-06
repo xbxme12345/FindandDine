@@ -1,6 +1,6 @@
-<strong>Find and Dine</strong>
+<h1><strong>Find and Dine</strong></h1>
 
-<em>By: Yan Wen Huang & Greg Lee</em>
+<h3><em>By: Yan Wen Huang & Greg Lee</em></h3>
 
 Find and Dine is a iOS application that helps users to decide on a place to eat quickly. The Find and Dine application features a search engine for both restaurant and food truck. 
 
