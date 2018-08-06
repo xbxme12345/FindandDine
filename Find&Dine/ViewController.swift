@@ -14,7 +14,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     // init location manager
     let locationManager = CLLocationManager()
     
-    // init GMSPlacesClient
+    // init GMSPlacesClient. Used to retrieve the current location 
     var placesClient: GMSPlacesClient!
     
     // define connections to input fields for ViewController
